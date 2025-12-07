@@ -1,0 +1,16 @@
+.htaccess
+.htpasswd
+*.log
+*.tmp
+*.cache
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+node_modules/
+.env
+config.php
+*.bak
+*.swp
+*~
+
