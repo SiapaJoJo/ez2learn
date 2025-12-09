@@ -1,3 +1,16 @@
+<?php
+session_start();
+
+// Protect page: only logged in users can access
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    // adjust path if your login.php is elsewhere
+    header('Location: auth/login.php');
+    exit();
+}
+
+$username = $_SESSION['username'] ?? 'Student';
+$role     = strtolower($_SESSION['role'] ?? 'student');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -313,10 +326,11 @@
 
         <div class="ez-user-info">
             <div>
-                Logged in as <strong>Nur Faqihah</strong> (Student)
+                Logged in as <strong><?php echo htmlspecialchars($username); ?></strong>
+                (<?php echo htmlspecialchars(ucfirst($role)); ?>)
             </div>
             <div class="ez-logout">
-                <a href="#">Logout</a>
+                <a href="logout.php">Logout</a>
             </div>
         </div>
     </header>
@@ -325,9 +339,9 @@
     <nav class="ez-nav">
         <div class="ez-nav-inner">
             <button class="active" type="button">Materials</button>
-            <button type="button">Assessments</button>
-            <button type="button">Profile</button>
-            <button type="button">Home</button>
+            <a href="#" type="button">Assessments</a>
+            <a href="#" type="button">Profile</a>
+            <a href="#" type="button">Home</a>
         </div>
     </nav>
 
