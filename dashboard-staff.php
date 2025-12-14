@@ -286,9 +286,9 @@ if ($conn && $user_id) {
             <div class="header-right">
                 <ul class="nav-menu">
                     <li><a href="dashboard-staff.php">Dashboard</a></li>
-                    <li><a href="#">My Courses</a></li>
+                    <li><a href="module-managelearning/main.php">My Courses</a></li>
                     <li><a href="#">Students</a></li>
-                    <li><a href="#">Assignments</a></li>
+                    <li><a href="module-assignments/staff-assignments.php">Assignments</a></li>
                 </ul>
                 <div class="profile-dropdown" id="profileDropdown">
                     <button class="profile-btn" onclick="toggleDropdown()">
