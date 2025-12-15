@@ -147,11 +147,11 @@ if ($conn) {
 
 $user_role = strtolower($_SESSION['role'] ?? 'student');
 if ($user_role == 'admin') {
-    $dashboard_url = '../dashboard-admin.php';
+    $dashboard_url = 'dashboard-admin.php';
 } elseif ($user_role == 'staff') {
-    $dashboard_url = '../dashboard-staff.php';
+    $dashboard_url = 'dashboard-staff.php';
 } else {
-    $dashboard_url = '../dashboard-student.php';
+    $dashboard_url = 'dashboard-student.php';
 }
 ?>
 <!DOCTYPE html>

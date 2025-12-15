@@ -1,4 +1,21 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header('Location: ../module-usermanagement/login.php');
+    exit();
+}
+
+$user_role = strtolower($_SESSION['role'] ?? 'student');
+$dashboard_url = '';
+if ($user_role == 'admin') {
+    $dashboard_url = '../module-usermanagement/dashboard-admin.php';
+} elseif ($user_role == 'staff') {
+    $dashboard_url = '../module-usermanagement/dashboard-staff.php';
+} else {
+    $dashboard_url = '../module-usermanagement/dashboard-student.php';
+}
+
 $courseCode      = 'ULE4625';
 $courseTitle     = 'Family System In Islam';
 $quizTitle       = 'Quiz 2';
@@ -18,20 +35,152 @@ $durationMinutes = 30;
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .header {
             background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            min-height: 100vh;
+            color: white;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-top {
+            padding: 15px 40px;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .profile-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .profile-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: flex-start;
-            padding: 30px 15px;
+            font-weight: bold;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .profile-dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .dropdown-menu a:first-child {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .dropdown-menu a:hover {
+            background: #f8f9fa;
+            color: #3198F8;
+        }
+
+        .dropdown-menu a.logout {
+            color: #c33;
+        }
+
+        .dropdown-menu a.logout:hover {
+            background: #fee;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
         }
 
         .page-container {
             background: #ffffff;
-            width: 100%;
-            max-width: 1000px;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             animation: slideUp 0.5s ease-out;
         }
@@ -39,74 +188,6 @@ $durationMinutes = 30;
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(30px); }
             to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .ez-header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 18px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-        .ez-brand { display: flex; align-items: center; gap: 15px; }
-        .ez-logo-circle {
-            width: 60px; height: 60px; border-radius: 50%;
-            background: white; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-        .ez-logo {
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            border-radius: 12px; position: relative;
-        }
-        .ez-logo::before {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 26px; height: 20px;
-            background:
-                linear-gradient(180deg, #1e3a5f 0%, #1e3a5f 100%) 0 0,
-                linear-gradient(180deg, #3198F8 0%, #3198F8 100%) 0 8px,
-                linear-gradient(180deg, #e91e63 0%, #e91e63 100%) 0 16px;
-            background-size: 18px 6px, 18px 6px, 18px 6px;
-            background-repeat: no-repeat;
-            background-position: center top, center center, center bottom;
-            border-radius: 2px;
-        }
-        .ez-brand-text h1 {
-            margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.5px;
-        }
-        .ez-brand-text span { color: #fdd835; }
-        .ez-brand-text small { font-size: 12px; display: block; opacity: 0.9; }
-
-        .ez-nav {
-            background: #f5f7fb;
-            padding: 10px 20px 0;
-        }
-        .ez-nav-inner {
-            background: #e0e7ff;
-            padding: 4px;
-            border-radius: 999px;
-            display: inline-flex;
-            gap: 4px;
-        }
-        .ez-nav button {
-            border: none;
-            background: transparent;
-            color: #1e3a5f;
-            font-size: 13px;
-            padding: 6px 18px;
-            border-radius: 999px;
-            cursor: pointer;
-        }
-        .ez-nav .active {
-            background: white;
-            color: #1e6bb8;
-            font-weight: 600;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.07);
         }
 
         .ez-main {
@@ -175,35 +256,49 @@ $durationMinutes = 30;
         }
 
         @media (max-width: 768px) {
-            body { padding: 20px 10px; }
-            .page-container { border-radius: 16px; }
-            .ez-header { flex-direction: column; align-items: flex-start; padding: 20px; }
+            .header-top {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
             .ez-main { padding: 25px 18px; }
         }
     </style>
 </head>
 <body>
-
-<div class="page-container">
-
-    <header class="ez-header">
-        <div class="ez-brand">
-            <div class="ez-logo-circle"><div class="ez-logo"></div></div>
-            <div class="ez-brand-text">
-                <h1>Ez2<span>Learn</span></h1>
-                <small>UMPSA Learning System</small>
+    <div class="header">
+        <div class="header-top">
+            <div class="logo-text">Ez2Learn</div>
+            <div class="header-right">
+                <ul class="nav-menu">
+                    <li><a href="<?php echo $dashboard_url; ?>">Dashboard</a></li>
+                    <li><a href="main.php">My Courses</a></li>
+                    <li><a href="../module-assignments/student-assignments.php">Assignments</a></li>
+                    <li><a href="../module-assignments/student-grades.php">Grades</a></li>
+                </ul>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <button class="profile-btn" onclick="toggleDropdown()">
+                        <div class="profile-icon"><?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?></div>
+                        <span><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                        <span>▼</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="../module-usermanagement/edit-profile.php">Edit Profile</a>
+                        <a href="../module-usermanagement/logout.php" class="logout">Logout</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </header>
+    </div>
 
-    <nav class="ez-nav">
-        <div class="ez-nav-inner">
-            <button class="active" type="button">Materials</button>
-            <button type="button">Assessments</button>
-            <button type="button">Profile</button>
-            <button type="button">Home</button>
-        </div>
-    </nav>
+    <div class="container">
+        <div class="page-container">
 
     <main class="ez-main">
         <div class="quiz-header">
@@ -311,6 +406,18 @@ $durationMinutes = 30;
         clearInterval(timerInterval);
         submitBtn.disabled = true;
         alert("Quiz submitted successfully! (Demo only – no backend)");
+    });
+
+    function toggleDropdown() {
+        const dropdown = document.getElementById('profileDropdown');
+        dropdown.classList.toggle('active');
+    }
+
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('profileDropdown');
+        if (!dropdown.contains(event.target)) {
+            dropdown.classList.remove('active');
+        }
     });
 </script>
 

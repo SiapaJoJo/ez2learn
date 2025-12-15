@@ -2,12 +2,12 @@
 session_start();
 
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    header('Location: module-usermanagement/login.php');
+    header('Location: login.php');
     exit();
 }
 
 if (strtolower($_SESSION['role'] ?? '') !== 'student') {
-    header('Location: module-usermanagement/login.php');
+    header('Location: login.php');
     exit();
 }
 
@@ -286,9 +286,9 @@ if ($conn && $user_id) {
             <div class="header-right">
                 <ul class="nav-menu">
                     <li><a href="dashboard-student.php">Dashboard</a></li>
-                    <li><a href="module-managelearning/main.php">My Courses</a></li>
-                    <li><a href="module-assignments/student-assignments.php">Assignments</a></li>
-                    <li><a href="module-assignments/student-grades.php">Grades</a></li>
+                    <li><a href="../module-managelearning/main.php">My Courses</a></li>
+                    <li><a href="../module-assignments/student-assignments.php">Assignments</a></li>
+                    <li><a href="../module-assignments/student-grades.php">Grades</a></li>
                 </ul>
                 <div class="profile-dropdown" id="profileDropdown">
                     <button class="profile-btn" onclick="toggleDropdown()">
@@ -297,8 +297,8 @@ if ($conn && $user_id) {
                         <span>▼</span>
                     </button>
                     <div class="dropdown-menu">
-                        <a href="module-usermanagement/edit-profile.php">Edit Profile</a>
-                        <a href="module-usermanagement/logout.php" class="logout">Logout</a>
+                        <a href="edit-profile.php">Edit Profile</a>
+                        <a href="logout.php" class="logout">Logout</a>
                     </div>
                 </div>
             </div>

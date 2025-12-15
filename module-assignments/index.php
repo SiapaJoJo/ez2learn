@@ -14,6 +14,6 @@ if ($role === 'staff') {
 } elseif ($role === 'student') {
     header('Location: student-assignments.php');
 } else {
-    header('Location: ../dashboard-admin.php');
+    header('Location: ../module-usermanagement/dashboard-admin.php');
 }
 exit();

@@ -13,4 +13,5 @@ config.php
 *.bak
 *.swp
 *~
+.history/
 

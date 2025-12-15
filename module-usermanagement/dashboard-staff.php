@@ -2,12 +2,12 @@
 session_start();
 
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    header('Location: module-usermanagement/login.php');
+    header('Location: login.php');
     exit();
 }
 
-if (strtolower($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: module-usermanagement/login.php');
+if (strtolower($_SESSION['role'] ?? '') !== 'staff') {
+    header('Location: login.php');
     exit();
 }
 
@@ -39,7 +39,7 @@ if ($conn && $user_id) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Ez2Learn</title>
+    <title>Staff Dashboard - Ez2Learn</title>
     <style>
         * {
             margin: 0;
@@ -285,10 +285,10 @@ if ($conn && $user_id) {
             <div class="logo-text">Ez2Learn</div>
             <div class="header-right">
                 <ul class="nav-menu">
-                    <li><a href="dashboard-admin.php">Dashboard</a></li>
-                    <li><a href="#">Users</a></li>
-                    <li><a href="#">Courses</a></li>
-                    <li><a href="#">Settings</a></li>
+                    <li><a href="dashboard-staff.php">Dashboard</a></li>
+                    <li><a href="../module-managelearning/main.php">My Courses</a></li>
+                    <li><a href="#">Students</a></li>
+                    <li><a href="../module-assignments/staff-assignments.php">Assignments</a></li>
                 </ul>
                 <div class="profile-dropdown" id="profileDropdown">
                     <button class="profile-btn" onclick="toggleDropdown()">
@@ -297,8 +297,8 @@ if ($conn && $user_id) {
                         <span>▼</span>
                     </button>
                     <div class="dropdown-menu">
-                        <a href="module-usermanagement/edit-profile.php">Edit Profile</a>
-                        <a href="module-usermanagement/logout.php" class="logout">Logout</a>
+                        <a href="edit-profile.php">Edit Profile</a>
+                        <a href="logout.php" class="logout">Logout</a>
                     </div>
                 </div>
             </div>
@@ -307,33 +307,33 @@ if ($conn && $user_id) {
 
     <div class="container">
         <div class="welcome-section">
-            <h1>Welcome to Admin Dashboard!</h1>
-            <p>You are logged in as <span class="username"><?php echo htmlspecialchars($_SESSION['username']); ?></span> (Admin)</p>
+            <h1>Welcome to Staff Dashboard!</h1>
+            <p>You are logged in as <span class="username"><?php echo htmlspecialchars($_SESSION['username']); ?></span> (Staff)</p>
         </div>
 
         <div class="dashboard-grid">
             <div class="card stat-card">
                 <div class="stat-number">0</div>
-                <div class="stat-label">Total Users</div>
+                <div class="stat-label">My Courses</div>
             </div>
             <div class="card stat-card">
                 <div class="stat-number">0</div>
-                <div class="stat-label">Total Courses</div>
+                <div class="stat-label">Total Students</div>
             </div>
             <div class="card stat-card">
                 <div class="stat-number">0</div>
-                <div class="stat-label">Active Students</div>
+                <div class="stat-label">Pending Assignments</div>
             </div>
         </div>
 
         <div class="dashboard-grid">
             <div class="card">
                 <h3>Quick Actions</h3>
-                <p>Manage users, courses, and system settings from here.</p>
+                <p>Create courses, manage students, and grade assignments.</p>
             </div>
             <div class="card">
                 <h3>Recent Activity</h3>
-                <p>View recent system activities and user actions.</p>
+                <p>View your recent teaching activities and student submissions.</p>
             </div>
         </div>
     </div>

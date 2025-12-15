@@ -606,7 +606,7 @@ mysqli_close($conn);
             <div class="logo-text">Ez2Learn</div>
             <div class="header-right">
                 <ul class="nav-menu">
-                    <li><a href="../dashboard-student.php">Dashboard</a></li>
+                    <li><a href="../module-usermanagement/dashboard-student.php">Dashboard</a></li>
                     <li><a href="../module-managelearning/main.php">My Courses</a></li>
                     <li><a href="student-assignments.php" class="active">Assignments</a></li>
                     <li><a href="student-grades.php">Grades</a></li>

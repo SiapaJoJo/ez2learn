@@ -156,16 +156,17 @@ mysqli_close($conn);
         .header {
             background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
             color: white;
-            padding: 15px 40px;
+            padding: 0;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
+        .header-top {
+            padding: 15px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .logo-text {
@@ -173,17 +174,116 @@ mysqli_close($conn);
             font-weight: bold;
         }
 
-        .back-link {
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            list-style: none;
+        }
+
+        .nav-menu a {
             color: white;
             text-decoration: none;
             padding: 8px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 5px;
             transition: all 0.3s ease;
+            font-size: 14px;
         }
 
-        .back-link:hover {
+        .nav-menu a:hover {
             background: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .profile-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .profile-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .profile-dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .dropdown-menu a:first-child {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .dropdown-menu a:hover {
+            background: #f8f9fa;
+            color: #3198F8;
+        }
+
+        .dropdown-menu a.logout {
+            color: #c33;
+        }
+
+        .dropdown-menu a.logout:hover {
+            background: #fee;
         }
 
         .container {
@@ -517,6 +617,17 @@ mysqli_close($conn);
         }
 
         @media (max-width: 768px) {
+            .header-top {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
             .assignment-meta {
                 flex-direction: column;
                 gap: 10px;
@@ -534,9 +645,27 @@ mysqli_close($conn);
 </head>
 <body>
     <div class="header">
-        <div class="header-content">
+        <div class="header-top">
             <div class="logo-text">Ez2Learn</div>
-            <a href="staff-assignments.php" class="back-link">← Back to Assignments</a>
+            <div class="header-right">
+                <ul class="nav-menu">
+                    <li><a href="../module-usermanagement/dashboard-staff.php">Dashboard</a></li>
+                    <li><a href="../module-managelearning/main.php">My Courses</a></li>
+                    <li><a href="#">Students</a></li>
+                    <li><a href="staff-assignments.php">Assignments</a></li>
+                </ul>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <button class="profile-btn" onclick="toggleDropdown()">
+                        <div class="profile-icon"><?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?></div>
+                        <span><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                        <span>▼</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="../module-usermanagement/edit-profile.php">Edit Profile</a>
+                        <a href="../module-usermanagement/logout.php" class="logout">Logout</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -700,5 +829,19 @@ mysqli_close($conn);
             <?php endif; ?>
         </div>
     </div>
+
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -191,10 +191,31 @@ mysqli_close($conn);
             color: #333;
             text-decoration: none;
             transition: all 0.3s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .dropdown-menu a:first-child {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
         }
 
         .dropdown-menu a:hover {
-            background: #f5f5f5;
+            background: #f8f9fa;
+            color: #3198F8;
+        }
+
+        .dropdown-menu a.logout {
+            color: #c33;
+        }
+
+        .dropdown-menu a.logout:hover {
+            background: #fee;
         }
 
         .dropdown-menu a:first-child {
@@ -452,12 +473,12 @@ mysqli_close($conn);
     </style>
 </head>
 <body>
-    <header class="header">
+    <div class="header">
         <div class="header-top">
             <div class="logo-text">Ez2Learn</div>
             <div class="header-right">
                 <ul class="nav-menu">
-                    <li><a href="../dashboard-student.php">Dashboard</a></li>
+                    <li><a href="../module-usermanagement/dashboard-student.php">Dashboard</a></li>
                     <li><a href="../module-managelearning/main.php">My Courses</a></li>
                     <li><a href="student-assignments.php">Assignments</a></li>
                     <li><a href="student-grades.php" class="active">Grades</a></li>
@@ -466,6 +487,7 @@ mysqli_close($conn);
                     <button class="profile-btn" onclick="toggleDropdown()">
                         <div class="profile-icon"><?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?></div>
                         <span><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                        <span>▼</span>
                     </button>
                     <div class="dropdown-menu">
                         <a href="../module-usermanagement/edit-profile.php">Edit Profile</a>
@@ -474,7 +496,7 @@ mysqli_close($conn);
                 </div>
             </div>
         </div>
-    </header>
+    </div>
 
     <div class="container">
         <div class="page-header">

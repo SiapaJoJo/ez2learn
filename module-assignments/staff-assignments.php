@@ -564,10 +564,10 @@ mysqli_close($conn);
             <div class="logo-text">Ez2Learn</div>
             <div class="header-right">
                 <ul class="nav-menu">
-                    <li><a href="../dashboard-staff.php">Dashboard</a></li>
-                    <li><a href="staff-assignments.php" class="active">Assignments</a></li>
-                    <li><a href="#">My Courses</a></li>
+                    <li><a href="../module-usermanagement/dashboard-staff.php">Dashboard</a></li>
+                    <li><a href="../module-managelearning/main.php">My Courses</a></li>
                     <li><a href="#">Students</a></li>
+                    <li><a href="staff-assignments.php" class="active">Assignments</a></li>
                 </ul>
                 <div class="profile-dropdown" id="profileDropdown">
                     <button class="profile-btn" onclick="toggleDropdown()">

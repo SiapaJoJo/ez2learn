@@ -37,11 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                         
                         $user_role = strtolower($row['role']);
                         if ($user_role == 'admin') {
-                            header('Location: ../dashboard-admin.php');
+                            header('Location: dashboard-admin.php');
                         } elseif ($user_role == 'staff') {
-                            header('Location: ../dashboard-staff.php');
+                            header('Location: dashboard-staff.php');
                         } else {
-                            header('Location: ../dashboard-student.php');
+                            header('Location: dashboard-student.php');
                         }
                         exit();
                     } else {
@@ -64,12 +64,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
     $role = strtolower($_SESSION['role'] ?? 'student');
     if ($role == 'admin') {
-        header('Location: ../dashboard-admin.php');
-    } elseif ($role == 'staff') {
-        header('Location: ../dashboard-staff.php');
-    } else {
-        header('Location: ../dashboard-student.php');
-    }
+    header('Location: dashboard-admin.php');
+} elseif ($role == 'staff') {
+    header('Location: dashboard-staff.php');
+} else {
+    header('Location: dashboard-student.php');
+}
     exit();
 }
 ?>
