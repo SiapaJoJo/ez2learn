@@ -45,146 +45,83 @@ if ($assignment_id > 0) {
 }
 
 mysqli_close($conn);
+
+$page_title = 'View Assignment';
+require_once '../../includes/header-admin.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Assignment - Admin - Ez2Learn</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 10px;
-            list-style: none;
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .nav-menu a:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
+<style>
         .page-container {
             background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .btn-back {
             background: #6b7280;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
+            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
-            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-back:hover {
             background: #4b5563;
+            transform: translateY(-1px);
         }
 
         .assignment-details {
-            margin-top: 20px;
+            margin-top: 1.5rem;
         }
 
         .detail-row {
-            margin-bottom: 15px;
-            padding-bottom: 15px;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1.25rem;
             border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
         }
 
         .detail-label {
             font-weight: 600;
-            color: #6b7280;
-            font-size: 14px;
-            margin-bottom: 5px;
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
         }
 
         .detail-value {
-            color: #1e3a5f;
-            font-size: 16px;
+            color: #1e293b;
+            font-size: 1rem;
+        }
+
+        h1 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
         }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-            <div class="header-right">
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Dashboard</a></li>
-                    <li><a href="../module-usermanagement/index.php">Users</a></li>
-                    <li><a href="../module-managelearning/index.php">Courses</a></li>
-                    <li><a href="index.php">Assignments</a></li>
-                    <li><a href="../module-progress/index.php">Progress</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-container">
             <a href="index.php" class="btn-back">← Back to Assignments</a>
             
             <?php if ($assignment): ?>
-                <h1 style="margin-bottom: 20px; color: #1e3a5f;"><?php echo htmlspecialchars($assignment['title']); ?></h1>
+                <h1 style="margin-bottom: 1.5rem; color: #1e293b; font-size: 1.5rem; font-weight: 700;"><?php echo htmlspecialchars($assignment['title']); ?></h1>
                 
                 <div class="assignment-details">
                     <div class="detail-row">
@@ -213,10 +150,9 @@ mysqli_close($conn);
                     </div>
                 </div>
             <?php else: ?>
-                <p style="text-align: center; padding: 40px; color: #6b7280;">Assignment not found</p>
+                <p style="text-align: center; padding: 2.5rem; color: #64748b;">Assignment not found</p>
             <?php endif; ?>
         </div>
     </div>
-</body>
-</html>
+<?php require_once '../../includes/footer.php'; ?>
 

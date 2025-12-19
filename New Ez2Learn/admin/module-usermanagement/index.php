@@ -189,207 +189,59 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
 mysqli_stmt_close($stmt);
+mysqli_close($conn);
+
+$page_title = 'User Management';
+require_once '../../includes/header-admin.php';
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Users - Admin - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 10px;
-            list-style: none;
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .nav-menu a:hover, .nav-menu a.active {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .profile-dropdown {
-            position: relative;
-        }
-
-        .profile-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .profile-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .profile-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            min-width: 200px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .profile-dropdown.active .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-menu a {
-            display: block;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .dropdown-menu a:first-child {
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-
-        .dropdown-menu a:last-child {
-            border-bottom: none;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-        }
-
-        .dropdown-menu a:hover {
-            background: #f8f9fa;
-            color: #3198F8;
-        }
-
-        .dropdown-menu a.logout {
-            color: #c33;
-        }
-
-        .dropdown-menu a.logout:hover {
-            background: #fee;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
         .page-container {
             background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .page-header {
-            padding: 30px;
+            padding: 1.5rem 2rem;
             border-bottom: 1px solid #e5e7eb;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
 
         .page-title {
-            font-size: 24px;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #1e3a5f;
+            color: #1e293b;
         }
 
         .btn-add {
-            background: #3198F8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
 
         .btn-add:hover {
-            background: #1e6bb8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(102, 126, 234, 0.4);
         }
 
         .filters {
-            padding: 20px 30px;
+            padding: 1.25rem 2rem;
             background: #f9fafb;
             border-bottom: 1px solid #e5e7eb;
             display: flex;
-            gap: 15px;
+            gap: 1rem;
             flex-wrap: wrap;
         }
 
@@ -405,14 +257,22 @@ mysqli_stmt_close($stmt);
         }
 
         .filter-group input, .filter-group select {
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 0.5rem 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .content {
-            padding: 30px;
+            padding: 2rem;
         }
 
         .table-wrapper {
@@ -440,6 +300,14 @@ mysqli_stmt_close($stmt);
             padding: 12px;
             border-top: 1px solid #e5e7eb;
             font-size: 14px;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
         }
 
         .badge {
@@ -475,22 +343,36 @@ mysqli_stmt_close($stmt);
         }
 
         .btn-action {
-            padding: 6px 12px;
+            padding: 0.5rem 0.75rem;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
-            margin-right: 5px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
         }
 
         .btn-edit {
-            background: #facc15;
+            background: #fbbf24;
             color: #111827;
         }
 
+        .btn-edit:hover {
+            background: #f59e0b;
+        }
+
         .btn-reset {
-            background: #3b82f6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+        }
+
+        .btn-reset:hover {
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
 
         .btn-toggle {
@@ -498,9 +380,17 @@ mysqli_stmt_close($stmt);
             color: white;
         }
 
+        .btn-toggle:hover {
+            background: #059669;
+        }
+
         .btn-delete {
             background: #ef4444;
             color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
         }
 
         .modal {
@@ -522,12 +412,13 @@ mysqli_stmt_close($stmt);
 
         .modal-content {
             background: white;
-            padding: 30px;
-            border-radius: 12px;
+            padding: 2rem;
+            border-radius: 16px;
             width: 90%;
             max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         .modal-header {
@@ -562,70 +453,57 @@ mysqli_stmt_close($stmt);
 
         .form-control {
             width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 0.625rem 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin: 1.25rem 2rem;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .alert-success {
-            background: #d1fae5;
+            background: #ecfdf5;
+            border-color: #10b981;
             color: #065f46;
-            border: 1px solid #6ee7b7;
         }
 
         .alert-danger {
-            background: #fee2e2;
+            background: #fef2f2;
+            border-color: #ef4444;
             color: #991b1b;
-            border: 1px solid #fca5a5;
         }
 
-        @media (max-width: 768px) {
-            .header-top {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav-menu {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-            <div class="header-right">
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Dashboard</a></li>
-                    <li><a href="index.php" class="active">Users</a></li>
-                    <li><a href="../module-managelearning/index.php">Courses</a></li>
-                    <li><a href="../module-assignments/index.php">Assignments</a></li>
-                    <li><a href="../module-progress/index.php">Progress</a></li>
-                </ul>
-                <div class="profile-dropdown" id="profileDropdown">
-                    <button class="profile-btn" onclick="toggleDropdown()">
-                        <div class="profile-icon"><?php echo strtoupper(substr($_SESSION['username'] ?? 'A', 0, 1)); ?></div>
-                        <span><?php echo htmlspecialchars($_SESSION['username'] ?? 'Admin'); ?></span>
-                        <span>▼</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <a href="../../edit-profile.php">Edit Profile</a>
-                        <a href="../../logout.php" class="logout">Logout</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-container">
@@ -719,7 +597,6 @@ mysqli_stmt_close($stmt);
         </div>
     </div>
 
-    <!-- Create/Edit Modal -->
     <div id="userModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -756,15 +633,14 @@ mysqli_stmt_close($stmt);
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
                     <button type="button" class="btn-action btn-toggle" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn-action btn-edit">Save</button>
+                    <button type="submit" class="btn-action btn-reset">Save</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Reset Password Modal -->
     <div id="resetModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -867,9 +743,5 @@ mysqli_stmt_close($stmt);
             }
         }
     </script>
-</body>
-</html>
-<?php
-mysqli_close($conn);
-?>
+<?php require_once '../../includes/footer.php'; ?>
 

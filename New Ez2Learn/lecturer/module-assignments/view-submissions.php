@@ -24,7 +24,6 @@ if (!$conn) {
 $lecturer_id = $_SESSION['user_id'] ?? 0;
 $assignment_id = (int)($_GET['assignment_id'] ?? 0);
 
-// Get assignment info and verify ownership
 $assignment_query = "
     SELECT a.*, c.course_code, c.course_name
     FROM assignments a
@@ -46,7 +45,6 @@ if (!$assignment) {
 $error = '';
 $success = '';
 
-// Handle grading
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['grade'])) {
     $submission_id = (int)($_POST['submission_id'] ?? 0);
     $marks = isset($_POST['marks']) ? (int)$_POST['marks'] : null;
@@ -73,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['grade'])) {
     }
 }
 
-// Get all submissions
 $submissions_query = "
     SELECT 
         s.*,

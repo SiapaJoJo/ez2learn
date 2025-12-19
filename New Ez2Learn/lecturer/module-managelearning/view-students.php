@@ -24,7 +24,6 @@ if (!$conn) {
 $lecturer_id = $_SESSION['user_id'] ?? 0;
 $course_id = (int)($_GET['course_id'] ?? 0);
 
-// Verify lecturer is assigned to this course
 $verify_stmt = mysqli_prepare($conn, "
     SELECT c.course_id, c.course_code, c.course_name 
     FROM courses c
@@ -42,7 +41,6 @@ if (!$course) {
     exit();
 }
 
-// Get enrolled students
 $students_query = "
     SELECT u.user_id, u.name, u.email, e.enrolled_at
     FROM enrollments e

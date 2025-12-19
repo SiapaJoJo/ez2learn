@@ -24,7 +24,6 @@ if (!$conn) {
 $student_id = $_SESSION['user_id'] ?? 0;
 $assignment_id = (int)($_GET['assignment_id'] ?? 0);
 
-// Get assignment details and verify enrollment
 $assignment_query = "
     SELECT 
         a.*, 

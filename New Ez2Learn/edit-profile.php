@@ -155,6 +155,11 @@ if ($user_role == 'admin') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile - Ez2Learn</title>
+    <link rel="icon" type="image/x-icon" href="image/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -163,54 +168,67 @@ if ($user_role == 'admin') {
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 15px 40px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
+        body::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            filter: blur(80px);
         }
 
-        .back-link {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.2);
+        body::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            bottom: -200px;
+            left: -200px;
+            filter: blur(80px);
         }
 
         .container {
             max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .profile-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            padding: 3rem;
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 2rem auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .profile-header {
@@ -222,7 +240,7 @@ if ($user_role == 'admin') {
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -230,18 +248,19 @@ if ($user_role == 'admin') {
             font-weight: bold;
             color: white;
             margin: 0 auto 20px;
-            box-shadow: 0 10px 30px rgba(49, 152, 248, 0.3);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
         }
 
         .profile-header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
+            color: #1e293b;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
 
         .profile-header p {
-            color: #666;
-            font-size: 14px;
+            color: #64748b;
+            font-size: 0.875rem;
         }
 
         .form-group {
@@ -250,27 +269,29 @@ if ($user_role == 'admin') {
 
         .form-group label {
             display: block;
-            color: #333;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
+            color: #1e293b;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
         .form-group input {
             width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+            color: #1e293b;
+            font-family: inherit;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #3198F8;
+            border-color: #667eea;
             background: white;
-            box-shadow: 0 0 0 4px rgba(49, 152, 248, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .form-group input::placeholder {
@@ -283,86 +304,97 @@ if ($user_role == 'admin') {
 
         .toggle-password {
             position: absolute;
-            right: 15px;
+            right: 1rem;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #666;
+            color: #64748b;
             cursor: pointer;
-            font-size: 18px;
-            padding: 5px;
+            font-size: 1.125rem;
+            padding: 0.25rem;
+            transition: color 0.3s;
         }
 
         .toggle-password:hover {
-            color: #3198F8;
+            color: #667eea;
         }
 
         .password-section {
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 2px solid #e0e0e0;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
         }
 
         .password-section h3 {
-            color: #333;
-            font-size: 18px;
-            margin-bottom: 20px;
+            color: #1e293b;
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
         }
 
         .btn-update {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(49, 152, 248, 0.4);
-            margin-top: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px 0 rgba(102, 126, 234, 0.39);
+            margin-top: 0.5rem;
         }
 
         .btn-update:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(49, 152, 248, 0.5);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
         }
 
         .btn-update:active {
             transform: translateY(0);
         }
 
-        .alert {
-            padding: 14px 18px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            font-size: 14px;
-            animation: slideDown 0.3s ease-out;
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: color 0.3s;
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .back-link:hover {
+            color: #764ba2;
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            animation: slideUp 0.3s;
         }
 
         .alert-error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
         }
 
         .alert-success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
+            background: #ecfdf5;
+            border-color: #10b981;
+            color: #065f46;
         }
 
         .role-badge {
@@ -390,27 +422,27 @@ if ($user_role == 'admin') {
             color: #388e3c;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 640px) {
             .profile-card {
-                padding: 30px 20px;
+                padding: 2rem 1.5rem;
             }
 
-            .container {
-                margin: 20px auto;
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+
+            .profile-header h1 {
+                font-size: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-content">
-            <div class="logo-text">Ez2Learn</div>
-            <a href="<?php echo $dashboard_url; ?>" class="back-link">← Back to Dashboard</a>
-        </div>
-    </div>
-
     <div class="container">
         <div class="profile-card">
+            <a href="<?php echo $dashboard_url; ?>" class="back-link">← Back to Dashboard</a>
             <div class="profile-header">
                 <div class="profile-avatar">
                     <?php 
@@ -468,7 +500,7 @@ if ($user_role == 'admin') {
 
                 <div class="password-section">
                     <h3>Change Password (Optional)</h3>
-                    <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Leave blank if you don't want to change your password</p>
+                    <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 1.25rem;">Leave blank if you don't want to change your password</p>
 
                     <div class="form-group">
                         <label for="current_password">Current Password</label>

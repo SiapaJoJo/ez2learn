@@ -25,7 +25,6 @@ $lecturer_id = $_SESSION['user_id'] ?? 0;
 $error = '';
 $success = '';
 
-// Handle delete
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $quiz_id = (int)$_GET['id'];
     
@@ -50,7 +49,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     mysqli_stmt_close($stmt);
 }
 
-// Get quizzes
 $quizzes_query = "
     SELECT 
         q.quiz_id, q.title, q.total_marks,

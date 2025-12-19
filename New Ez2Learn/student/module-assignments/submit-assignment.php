@@ -24,7 +24,6 @@ if (!$conn) {
 $student_id = $_SESSION['user_id'] ?? 0;
 $assignment_id = (int)($_GET['assignment_id'] ?? 0);
 
-// Get assignment details and verify enrollment
 $assignment_query = "
     SELECT a.*, c.course_code, c.course_name
     FROM assignments a
@@ -44,7 +43,6 @@ if (!$assignment) {
     exit();
 }
 
-// Check if already submitted
 $check_submission = mysqli_prepare($conn, "SELECT submission_id, file_path FROM submissions WHERE assignment_id = ? AND student_id = ?");
 mysqli_stmt_bind_param($check_submission, "ii", $assignment_id, $student_id);
 mysqli_stmt_execute($check_submission);
@@ -55,7 +53,6 @@ mysqli_stmt_close($check_submission);
 $error = '';
 $success = '';
 
-// Handle file upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     if (!isset($_FILES['assignment_file']) || $_FILES['assignment_file']['error'] === UPLOAD_ERR_NO_FILE) {
         $error = 'Please select a file to upload.';
@@ -87,11 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                         $file_path = 'uploads/assignments/' . $unique_filename;
                         
                         if ($existing_submission) {
-                            // Delete old file
+
                             if ($existing_submission['file_path'] && file_exists('../../' . $existing_submission['file_path'])) {
                                 unlink('../../' . $existing_submission['file_path']);
                             }
-                            // Update submission
+
                             $update_stmt = mysqli_prepare($conn, "
                                 UPDATE submissions 
                                 SET file_path = ?, submitted_at = NOW()
@@ -101,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                             mysqli_stmt_execute($update_stmt);
                             mysqli_stmt_close($update_stmt);
                         } else {
-                            // Insert new submission
+
                             $insert_stmt = mysqli_prepare($conn, "
                                 INSERT INTO submissions (assignment_id, student_id, file_path)
                                 VALUES (?, ?, ?)

@@ -24,7 +24,6 @@ if (!$conn) {
 $student_id = $_SESSION['user_id'] ?? 0;
 $course_id = (int)($_GET['course_id'] ?? 0);
 
-// Verify student is enrolled
 $verify_query = "
     SELECT c.course_id, c.course_code, c.course_name, c.description
     FROM courses c
@@ -43,7 +42,6 @@ if (!$course) {
     exit();
 }
 
-// Get learning materials
 $materials_query = "
     SELECT material_id, title, material_type, file_path, created_at
     FROM materials
@@ -57,7 +55,6 @@ $result = mysqli_stmt_get_result($stmt);
 $materials = mysqli_fetch_all($result, MYSQLI_ASSOC);
 mysqli_stmt_close($stmt);
 
-// Get quizzes
 $quizzes_query = "
     SELECT quiz_id, title, total_marks
     FROM quizzes
@@ -257,7 +254,6 @@ mysqli_close($conn);
             <a href="index.php" class="btn-back">← Back to Courses</a>
         </div>
 
-        <!-- Learning Materials -->
         <div class="page-container">
             <h2 class="section-title">Learning Materials</h2>
             <?php if (empty($materials)): ?>
@@ -288,7 +284,6 @@ mysqli_close($conn);
             <?php endif; ?>
         </div>
 
-        <!-- Quizzes -->
         <div class="page-container">
             <h2 class="section-title">Quizzes</h2>
             <?php if (empty($quizzes)): ?>

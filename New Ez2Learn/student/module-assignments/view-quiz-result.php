@@ -24,7 +24,6 @@ if (!$conn) {
 $student_id = $_SESSION['user_id'] ?? 0;
 $quiz_id = (int)($_GET['quiz_id'] ?? 0);
 
-// Get quiz details
 $quiz_query = "
     SELECT q.*, c.course_code, c.course_name
     FROM quizzes q
@@ -43,7 +42,6 @@ if (!$quiz) {
     exit();
 }
 
-// Get student's attempt
 $attempt_query = "SELECT * FROM quiz_attempts WHERE quiz_id = ? AND student_id = ? ORDER BY attempted_at DESC LIMIT 1";
 $stmt = mysqli_prepare($conn, $attempt_query);
 mysqli_stmt_bind_param($stmt, "ii", $quiz_id, $student_id);
@@ -57,7 +55,6 @@ if (!$attempt) {
     exit();
 }
 
-// Get questions and answers
 $questions_query = "
     SELECT question_id, question_text, question_type, option_a, option_b, option_c, option_d, correct_answer, marks
     FROM quiz_questions

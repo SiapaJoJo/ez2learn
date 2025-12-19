@@ -23,7 +23,6 @@ if (!$conn) {
 
 $lecturer_id = $_SESSION['user_id'] ?? 0;
 
-// Get course progress summary
 $progress_query = "
     SELECT 
         c.course_id, c.course_code, c.course_name,
@@ -46,184 +45,33 @@ $course_progress = mysqli_fetch_all($result, MYSQLI_ASSOC);
 mysqli_stmt_close($stmt);
 
 mysqli_close($conn);
+
+$page_title = 'Student Progress';
+require_once '../../includes/header-lecturer.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Progress - Lecturer - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 10px;
-            list-style: none;
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .nav-menu a:hover, .nav-menu a.active {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .profile-dropdown {
-            position: relative;
-        }
-
-        .profile-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .profile-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .profile-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            min-width: 200px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .profile-dropdown.active .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-menu a {
-            display: block;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .dropdown-menu a:first-child {
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-
-        .dropdown-menu a:last-child {
-            border-bottom: none;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-        }
-
-        .dropdown-menu a:hover {
-            background: #f8f9fa;
-            color: #3198F8;
-        }
-
-        .dropdown-menu a.logout {
-            color: #c33;
-        }
-
-        .dropdown-menu a.logout:hover {
-            background: #fee;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
         .page-container {
             background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .page-header {
-            padding: 30px;
+            padding: 1.5rem 2rem;
             border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
 
         .page-title {
-            font-size: 24px;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #1e3a5f;
+            color: #1e293b;
         }
 
         .content {
-            padding: 30px;
+            padding: 2rem;
         }
 
         .table-wrapper {
@@ -253,61 +101,30 @@ mysqli_close($conn);
             font-size: 14px;
         }
 
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
         .progress-bar {
             width: 100%;
             height: 20px;
             background: #e5e7eb;
             border-radius: 10px;
             overflow: hidden;
-            margin-top: 5px;
+            margin-top: 0.5rem;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #3198F8 0%, #1e6bb8 100%);
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             transition: width 0.3s ease;
         }
 
-        @media (max-width: 768px) {
-            .header-top {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav-menu {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-            <div class="header-right">
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Dashboard</a></li>
-                    <li><a href="../module-managelearning/index.php">Materials</a></li>
-                    <li><a href="../module-assignments/index.php">Assignments</a></li>
-                    <li><a href="index.php" class="active">Progress</a></li>
-                    <li><a href="../module-usermanagement/index.php">Students</a></li>
-                </ul>
-                <div class="profile-dropdown" id="profileDropdown">
-                    <button class="profile-btn" onclick="toggleDropdown()">
-                        <div class="profile-icon"><?php echo strtoupper(substr($_SESSION['name'] ?? 'L', 0, 1)); ?></div>
-                        <span><?php echo htmlspecialchars($_SESSION['name'] ?? 'Lecturer'); ?></span>
-                        <span>▼</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <a href="../../edit-profile.php">Edit Profile</a>
-                        <a href="../../logout.php" class="logout">Logout</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-container">
@@ -358,18 +175,5 @@ mysqli_close($conn);
         </div>
     </div>
 
-    <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('profileDropdown');
-            dropdown.classList.toggle('active');
-        }
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('profileDropdown');
-            if (!dropdown.contains(event.target)) {
-                dropdown.classList.remove('active');
-            }
-        });
-    </script>
-</body>
-</html>
+<?php require_once '../../includes/footer.php'; ?>
 

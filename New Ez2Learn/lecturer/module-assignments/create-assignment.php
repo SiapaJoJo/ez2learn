@@ -25,7 +25,6 @@ $lecturer_id = $_SESSION['user_id'] ?? 0;
 $error = '';
 $success = '';
 
-// Get assigned courses
 $courses_query = "
     SELECT c.course_id, c.course_code, c.course_name
     FROM courses c
@@ -52,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create'])) {
     } elseif ($course_id <= 0) {
         $error = 'Please select a course.';
     } else {
-        // Verify lecturer is assigned to this course
+
         $verify_stmt = mysqli_prepare($conn, "
             SELECT course_id FROM course_lecturers 
             WHERE course_id = ? AND lecturer_id = ?

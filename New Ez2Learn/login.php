@@ -32,13 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                     if ($row['status'] !== 'active') {
                         $error = 'Your account is inactive. Please contact administrator.';
                     } else {
-                        // Check if password is hashed (starts with $2y$) or plain text
                         $password_valid = false;
                         if (substr($row['password'], 0, 4) === '$2y$') {
-                            // Password is hashed, use password_verify
                             $password_valid = password_verify($password, $row['password']);
                         } else {
-                            // Password is plain text, compare directly
                             $password_valid = ($password === $row['password']);
                         }
                         
@@ -94,6 +91,8 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Ez2Learn</title>
+    <link rel="icon" type="image/x-icon" href="image/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -110,10 +109,10 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             padding: 20px;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -151,6 +150,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             position: relative;
             z-index: 1;
             animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 2rem auto;
         }
 
         @keyframes slideUp {
@@ -170,19 +170,14 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
         }
 
         .logo {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
+            display: inline-block;
             margin-bottom: 1.5rem;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            font-size: 2rem;
-            font-weight: 700;
-            color: white;
-            letter-spacing: -2px;
+        }
+
+        .logo img {
+            height: 80px;
+            width: auto;
+            object-fit: contain;
         }
 
         .logo-text {
@@ -352,10 +347,8 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                 padding: 2rem 1.5rem;
             }
 
-            .logo {
-                width: 64px;
+            .logo img {
                 height: 64px;
-                font-size: 1.5rem;
             }
 
             .logo-text {
@@ -367,7 +360,9 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 <body>
     <div class="login-container">
         <div class="logo-container">
-            <div class="logo">E2L</div>
+            <div class="logo">
+                <img src="image/logo-ez2learn.png" alt="Ez2Learn">
+            </div>
             <div class="logo-text">Ez2Learn</div>
             <div class="logo-subtitle">Your Learning Management System</div>
         </div>

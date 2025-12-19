@@ -27,7 +27,6 @@ $filter = $_GET['filter'] ?? 'all';
 $error = '';
 $success = '';
 
-// Handle delete
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $assignment_id = (int)$_GET['id'];
     
@@ -52,7 +51,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     mysqli_stmt_close($stmt);
 }
 
-// Get assignments
 $where_clause = "WHERE a.lecturer_id = $lecturer_id";
 if ($filter === 'pending') {
     $where_clause .= " AND EXISTS (SELECT 1 FROM submissions s WHERE s.assignment_id = a.assignment_id AND s.marks IS NULL)";
@@ -75,227 +73,87 @@ $result = mysqli_query($conn, $assignments_query);
 $assignments = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 mysqli_close($conn);
+
+$page_title = 'My Assignments';
+require_once '../../includes/header-lecturer.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Assignments - Lecturer - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 10px;
-            list-style: none;
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .nav-menu a:hover, .nav-menu a.active {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .profile-dropdown {
-            position: relative;
-        }
-
-        .profile-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .profile-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .profile-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            min-width: 200px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .profile-dropdown.active .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-menu a {
-            display: block;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .dropdown-menu a:first-child {
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-
-        .dropdown-menu a:last-child {
-            border-bottom: none;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-        }
-
-        .dropdown-menu a:hover {
-            background: #f8f9fa;
-            color: #3198F8;
-        }
-
-        .dropdown-menu a.logout {
-            color: #c33;
-        }
-
-        .dropdown-menu a.logout:hover {
-            background: #fee;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
         .page-container {
             background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .page-header {
-            padding: 30px;
+            padding: 1.5rem 2rem;
             border-bottom: 1px solid #e5e7eb;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
 
         .page-title {
-            font-size: 24px;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #1e3a5f;
+            color: #1e293b;
         }
 
         .btn-add {
-            background: #3198F8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
 
         .btn-add:hover {
-            background: #1e6bb8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(102, 126, 234, 0.4);
         }
 
         .filters {
-            padding: 20px 30px;
+            padding: 1.25rem 2rem;
             background: #f9fafb;
             border-bottom: 1px solid #e5e7eb;
             display: flex;
-            gap: 15px;
+            gap: 1rem;
         }
 
         .filter-btn {
-            padding: 8px 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
             background: white;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
+            font-weight: 500;
             text-decoration: none;
-            color: #333;
+            color: #64748b;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
         }
 
         .filter-btn.active {
-            background: #3198F8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-color: #3198F8;
+            border-color: transparent;
         }
 
         .content {
-            padding: 30px;
+            padding: 2rem;
         }
 
         .table-wrapper {
@@ -326,19 +184,29 @@ mysqli_close($conn);
         }
 
         .btn-action {
-            padding: 6px 12px;
+            padding: 0.5rem 0.75rem;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
-            margin-right: 5px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
             text-decoration: none;
             display: inline-block;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
         }
 
         .btn-view {
-            background: #3b82f6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+        }
+
+        .btn-view:hover {
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
 
         .btn-grade {
@@ -346,69 +214,63 @@ mysqli_close($conn);
             color: white;
         }
 
+        .btn-grade:hover {
+            background: #059669;
+        }
+
         .btn-delete {
             background: #ef4444;
             color: white;
         }
 
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
         .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin: 20px 30px;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin: 1.25rem 2rem;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .alert-success {
-            background: #d1fae5;
+            background: #ecfdf5;
+            border-color: #10b981;
             color: #065f46;
-            border: 1px solid #6ee7b7;
         }
 
         .alert-danger {
-            background: #fee2e2;
+            background: #fef2f2;
+            border-color: #ef4444;
             color: #991b1b;
-            border: 1px solid #fca5a5;
         }
 
-        @media (max-width: 768px) {
-            .header-top {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav-menu {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-            <div class="header-right">
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Dashboard</a></li>
-                    <li><a href="../module-managelearning/index.php">Materials</a></li>
-                    <li><a href="index.php" class="active">Assignments</a></li>
-                    <li><a href="../module-progress/index.php">Progress</a></li>
-                    <li><a href="../module-usermanagement/index.php">Students</a></li>
-                </ul>
-                <div class="profile-dropdown" id="profileDropdown">
-                    <button class="profile-btn" onclick="toggleDropdown()">
-                        <div class="profile-icon"><?php echo strtoupper(substr($_SESSION['name'] ?? 'L', 0, 1)); ?></div>
-                        <span><?php echo htmlspecialchars($_SESSION['name'] ?? 'Lecturer'); ?></span>
-                        <span>▼</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <a href="../../edit-profile.php">Edit Profile</a>
-                        <a href="../../logout.php" class="logout">Logout</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-container">
@@ -416,7 +278,7 @@ mysqli_close($conn);
                 <h1 class="page-title">My Assignments & Quizzes</h1>
                 <div style="display: flex; gap: 10px;">
                     <a href="create-assignment.php" class="btn-add">+ Create Assignment</a>
-                    <a href="create-quiz.php" class="btn-add" style="background: #10b981;">+ Create Quiz</a>
+                    <a href="create-quiz.php" class="btn-add" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">+ Create Quiz</a>
                 </div>
             </div>
 
@@ -477,23 +339,11 @@ mysqli_close($conn);
     </div>
 
     <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('profileDropdown');
-            dropdown.classList.toggle('active');
-        }
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('profileDropdown');
-            if (!dropdown.contains(event.target)) {
-                dropdown.classList.remove('active');
-            }
-        });
-
         function deleteAssignment(assignmentId, title) {
             if (confirm(`Are you sure you want to delete assignment "${title}"? This will also delete all submissions.`)) {
                 window.location.href = `index.php?action=delete&id=${assignmentId}`;
             }
         }
     </script>
-</body>
-</html>
+<?php require_once '../../includes/footer.php'; ?>
 

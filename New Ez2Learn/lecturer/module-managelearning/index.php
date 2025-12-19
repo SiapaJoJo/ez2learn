@@ -23,7 +23,6 @@ if (!$conn) {
 
 $lecturer_id = $_SESSION['user_id'] ?? 0;
 
-// Get assigned courses
 $courses_query = "
     SELECT 
         c.course_id, c.course_code, c.course_name, c.description, c.status,
@@ -45,229 +44,79 @@ $courses = mysqli_fetch_all($result, MYSQLI_ASSOC);
 mysqli_stmt_close($stmt);
 
 mysqli_close($conn);
+
+$page_title = 'Manage Learning Materials';
+require_once '../../includes/header-lecturer.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Learning Materials - Lecturer - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 10px;
-            list-style: none;
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .nav-menu a:hover, .nav-menu a.active {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .profile-dropdown {
-            position: relative;
-        }
-
-        .profile-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .profile-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .profile-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            min-width: 200px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .profile-dropdown.active .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-menu a {
-            display: block;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .dropdown-menu a:first-child {
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-
-        .dropdown-menu a:last-child {
-            border-bottom: none;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-        }
-
-        .dropdown-menu a:hover {
-            background: #f8f9fa;
-            color: #3198F8;
-        }
-
-        .dropdown-menu a.logout {
-            color: #c33;
-        }
-
-        .dropdown-menu a.logout:hover {
-            background: #fee;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
         .page-header {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .page-header h1 {
-            color: #333;
-            font-size: 32px;
-            margin-bottom: 10px;
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
 
         .page-header p {
-            color: #666;
-            font-size: 16px;
+            color: #64748b;
+            font-size: 1rem;
         }
 
         .courses-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
+            gap: 1.5rem;
         }
 
         .course-card {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .course-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         .course-header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
+            padding: 1.5rem;
         }
 
         .course-code {
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 600;
             opacity: 0.9;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
         }
 
         .course-title {
-            font-size: 18px;
+            font-size: 1.125rem;
             font-weight: 600;
         }
 
         .course-body {
-            padding: 20px;
+            padding: 1.5rem;
         }
 
         .course-stats {
             display: flex;
-            gap: 20px;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
+            gap: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
             border-bottom: 1px solid #f0f0f0;
         }
 
@@ -277,58 +126,62 @@ mysqli_close($conn);
         }
 
         .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #3198F8;
-            margin-bottom: 5px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.25rem;
         }
 
         .stat-label {
-            font-size: 12px;
-            color: #666;
+            font-size: 0.75rem;
+            color: #64748b;
         }
 
         .course-actions {
             display: flex;
-            gap: 10px;
+            gap: 0.75rem;
             flex-wrap: wrap;
         }
 
         .btn-action {
             flex: 1;
             min-width: 120px;
-            padding: 12px;
+            padding: 0.75rem;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             display: inline-block;
             text-align: center;
         }
 
         .btn-manage {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
 
         .btn-manage:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(49, 152, 248, 0.4);
+            box-shadow: 0 6px 12px -2px rgba(102, 126, 234, 0.4);
         }
 
         .btn-view {
-            background: #f8f9fa;
-            color: #333;
-            border: 2px solid #e0e0e0;
+            background: #f8fafc;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
         }
 
         .btn-view:hover {
-            background: #e9ecef;
-            border-color: #3198F8;
-            color: #3198F8;
+            background: white;
+            border-color: #667eea;
+            color: #667eea;
         }
 
         .empty-state {
@@ -355,49 +208,11 @@ mysqli_close($conn);
         }
 
         @media (max-width: 768px) {
-            .header-top {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav-menu {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
             .courses-grid {
                 grid-template-columns: 1fr;
             }
         }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-            <div class="header-right">
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Dashboard</a></li>
-                    <li><a href="index.php" class="active">Materials</a></li>
-                    <li><a href="../module-assignments/index.php">Assignments</a></li>
-                    <li><a href="../module-progress/index.php">Progress</a></li>
-                    <li><a href="../module-usermanagement/index.php">Students</a></li>
-                </ul>
-                <div class="profile-dropdown" id="profileDropdown">
-                    <button class="profile-btn" onclick="toggleDropdown()">
-                        <div class="profile-icon"><?php echo strtoupper(substr($_SESSION['name'] ?? 'L', 0, 1)); ?></div>
-                        <span><?php echo htmlspecialchars($_SESSION['name'] ?? 'Lecturer'); ?></span>
-                        <span>▼</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <a href="../../edit-profile.php">Edit Profile</a>
-                        <a href="../../logout.php" class="logout">Logout</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-header">
@@ -442,19 +257,5 @@ mysqli_close($conn);
         <?php endif; ?>
     </div>
 
-    <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('profileDropdown');
-            dropdown.classList.toggle('active');
-        }
-
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('profileDropdown');
-            if (!dropdown.contains(event.target)) {
-                dropdown.classList.remove('active');
-            }
-        });
-    </script>
-</body>
-</html>
+<?php require_once '../../includes/footer.php'; ?>
 

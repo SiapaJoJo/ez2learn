@@ -91,6 +91,11 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Ez2Learn</title>
+    <link rel="icon" type="image/x-icon" href="image/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="image/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -99,23 +104,53 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            filter: blur(80px);
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            bottom: -200px;
+            left: -200px;
+            filter: blur(80px);
         }
 
         .register-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.5);
             width: 100%;
             max-width: 500px;
-            padding: 50px 40px;
-            animation: slideUp 0.5s ease-out;
+            padding: 3rem;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 2rem auto;
         }
 
         @keyframes slideUp {
@@ -136,60 +171,45 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 
         .logo {
             display: inline-block;
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            border-radius: 50%;
-            position: relative;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(49, 152, 248, 0.3);
+            margin-bottom: 1.5rem;
         }
 
-        .logo::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80px;
-            height: 60px;
-            background: 
-                linear-gradient(180deg, #1e3a5f 0%, #1e3a5f 100%) 0 0,
-                linear-gradient(180deg, #3198F8 0%, #3198F8 100%) 0 20px,
-                linear-gradient(180deg, #e91e63 0%, #e91e63 100%) 0 40px;
-            background-size: 50px 15px, 50px 15px, 50px 15px;
-            background-repeat: no-repeat;
-            background-position: center top, center center, center bottom;
-            border-radius: 2px;
+        .logo img {
+            height: 80px;
+            width: auto;
+            object-fit: contain;
         }
 
         .logo-text {
-            font-size: 36px;
-            font-weight: bold;
-            color: #1e3a5f;
-            margin-bottom: 8px;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
             letter-spacing: -1px;
         }
 
         .logo-subtitle {
-            font-size: 14px;
-            color: #666;
-            font-weight: 300;
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 400;
         }
 
         .form-title {
             text-align: center;
-            color: #333;
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 10px;
+            color: #1e293b;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
 
         .form-subtitle {
             text-align: center;
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 30px;
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
         }
 
         .form-group {
@@ -207,21 +227,22 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-            color: #333;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+            color: #1e293b;
+            font-family: inherit;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #3198F8;
+            border-color: #667eea;
             background: white;
-            box-shadow: 0 0 0 4px rgba(49, 152, 248, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .form-group input::placeholder {
@@ -229,18 +250,12 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
         }
 
         .form-group select {
-            cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233198F8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 18px center;
-            padding-right: 45px;
-        }
-
-        .form-group select:focus {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233198F8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 18px center;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+            cursor: pointer;
         }
 
         .form-group select option {
@@ -255,19 +270,20 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 
         .toggle-password {
             position: absolute;
-            right: 15px;
+            right: 1rem;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #666;
+            color: #64748b;
             cursor: pointer;
-            font-size: 18px;
-            padding: 5px;
+            font-size: 1.125rem;
+            padding: 0.25rem;
+            transition: color 0.3s;
         }
 
         .toggle-password:hover {
-            color: #3198F8;
+            color: #667eea;
         }
 
         .password-strength {
@@ -290,21 +306,22 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 
         .btn-register {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(49, 152, 248, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px 0 rgba(102, 126, 234, 0.39);
+            margin-top: 0.5rem;
         }
 
         .btn-register:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(49, 152, 248, 0.5);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
         }
 
         .btn-register:active {
@@ -312,34 +329,27 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
         }
 
         .alert {
-            padding: 14px 18px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            font-size: 14px;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            animation: slideUp 0.3s;
         }
 
         .alert-error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
         }
 
         .alert-success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
+            background: #ecfdf5;
+            border-color: #10b981;
+            color: #065f46;
         }
 
         .divider {
@@ -376,26 +386,27 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
         }
 
         .login-link a {
-            color: #3198F8;
+            color: #667eea;
             text-decoration: none;
             font-weight: 600;
+            transition: color 0.3s;
         }
 
         .login-link a:hover {
-            text-decoration: underline;
+            color: #764ba2;
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 640px) {
             .register-container {
-                padding: 40px 30px;
+                padding: 2rem 1.5rem;
+            }
+
+            .logo img {
+                height: 64px;
             }
 
             .logo-text {
-                font-size: 30px;
-            }
-
-            .form-title {
-                font-size: 24px;
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -403,9 +414,11 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 <body>
     <div class="register-container">
         <div class="logo-container">
-            <div class="logo"></div>
+            <div class="logo">
+                <img src="image/logo-ez2learn.png" alt="Ez2Learn">
+            </div>
             <div class="logo-text">Ez2Learn</div>
-            <div class="logo-subtitle">UMPSA Learning System</div>
+            <div class="logo-subtitle">Your Learning Management System</div>
         </div>
 
         <h1 class="form-title">Create Account</h1>
@@ -413,13 +426,15 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 
         <?php if (!empty($error)): ?>
             <div class="alert alert-error">
-                <?php echo htmlspecialchars($error); ?>
+                <span>⚠️</span>
+                <span><?php echo htmlspecialchars($error); ?></span>
             </div>
         <?php endif; ?>
 
         <?php if (!empty($success)): ?>
             <div class="alert alert-success">
-                <?php echo htmlspecialchars($success); ?>
+                <span>✓</span>
+                <span><?php echo htmlspecialchars($success); ?></span>
             </div>
         <?php endif; ?>
 

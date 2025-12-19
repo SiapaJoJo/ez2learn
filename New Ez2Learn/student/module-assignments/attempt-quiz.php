@@ -24,7 +24,6 @@ if (!$conn) {
 $student_id = $_SESSION['user_id'] ?? 0;
 $quiz_id = (int)($_GET['quiz_id'] ?? 0);
 
-// Get quiz details and verify enrollment
 $quiz_query = "
     SELECT q.*, c.course_code, c.course_name
     FROM quizzes q
@@ -44,7 +43,6 @@ if (!$quiz) {
     exit();
 }
 
-// Check if already attempted
 $check_attempt = mysqli_prepare($conn, "SELECT attempt_id, score FROM quiz_attempts WHERE quiz_id = ? AND student_id = ?");
 mysqli_stmt_bind_param($check_attempt, "ii", $quiz_id, $student_id);
 mysqli_stmt_execute($check_attempt);
@@ -52,7 +50,6 @@ $attempt_result = mysqli_stmt_get_result($check_attempt);
 $existing_attempt = mysqli_fetch_assoc($attempt_result);
 mysqli_stmt_close($check_attempt);
 
-// Get questions
 $questions_query = "
     SELECT question_id, question_text, question_type, option_a, option_b, option_c, option_d, marks
     FROM quiz_questions
@@ -69,7 +66,6 @@ mysqli_stmt_close($stmt);
 $error = '';
 $success = '';
 
-// Handle quiz submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_quiz'])) {
     $answers = $_POST['answers'] ?? [];
     $total_score = 0;
@@ -80,8 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_quiz'])) {
         $total_marks += $question['marks'];
         $student_answer = trim($answers[$question_id] ?? '');
         $correct_answer = '';
-        
-        // Get correct answer
+
         $correct_query = mysqli_prepare($conn, "SELECT correct_answer FROM quiz_questions WHERE question_id = ?");
         mysqli_stmt_bind_param($correct_query, "i", $question_id);
         mysqli_stmt_execute($correct_query);
@@ -89,18 +84,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_quiz'])) {
         $correct_row = mysqli_fetch_assoc($correct_result);
         $correct_answer = trim($correct_row['correct_answer']);
         mysqli_stmt_close($correct_query);
-        
-        // Check if answer is correct (case-insensitive for text answers)
+
         if (strtolower($student_answer) === strtolower($correct_answer)) {
             $total_score += $question['marks'];
         }
     }
-    
-    // Save attempt
+
     $answers_json = json_encode($answers);
     
     if ($existing_attempt) {
-        // Update existing attempt
+
         $update_stmt = mysqli_prepare($conn, "
             UPDATE quiz_attempts 
             SET score = ?, answers = ?, attempted_at = NOW()
@@ -110,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_quiz'])) {
         mysqli_stmt_execute($update_stmt);
         mysqli_stmt_close($update_stmt);
     } else {
-        // Insert new attempt
+
         $insert_stmt = mysqli_prepare($conn, "
             INSERT INTO quiz_attempts (quiz_id, student_id, score, answers)
             VALUES (?, ?, ?, ?)

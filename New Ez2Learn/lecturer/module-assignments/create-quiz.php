@@ -25,7 +25,6 @@ $lecturer_id = $_SESSION['user_id'] ?? 0;
 $error = '';
 $success = '';
 
-// Get assigned courses
 $courses_query = "
     SELECT c.course_id, c.course_code, c.course_name
     FROM courses c
@@ -50,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_quiz'])) {
     } elseif ($course_id <= 0) {
         $error = 'Please select a course.';
     } else {
-        // Verify lecturer is assigned to this course
+
         $verify_stmt = mysqli_prepare($conn, "
             SELECT course_id FROM course_lecturers 
             WHERE course_id = ? AND lecturer_id = ?
@@ -69,8 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_quiz'])) {
             if (mysqli_stmt_execute($insert_stmt)) {
                 $quiz_id = mysqli_insert_id($conn);
                 mysqli_stmt_close($insert_stmt);
-                
-                // Handle questions
+
                 $questions = $_POST['questions'] ?? [];
                 $total_question_marks = 0;
                 
@@ -102,8 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_quiz'])) {
                         $total_question_marks += $marks;
                     }
                 }
-                
-                // Update total marks if needed
+
                 if ($total_question_marks > 0 && $total_question_marks != $total_marks) {
                     $update_stmt = mysqli_prepare($conn, "UPDATE quizzes SET total_marks = ? WHERE quiz_id = ?");
                     mysqli_stmt_bind_param($update_stmt, "ii", $total_question_marks, $quiz_id);
@@ -463,7 +460,6 @@ mysqli_close($conn);
             }
         }
 
-        // Add first question by default
         window.onload = function() {
             addQuestion();
         };

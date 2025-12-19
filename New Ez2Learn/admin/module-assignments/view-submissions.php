@@ -24,7 +24,7 @@ if (!$conn) {
 $assignment_id = (int)($_GET['assignment_id'] ?? 0);
 
 if ($assignment_id > 0) {
-    // Get assignment info
+
     $assignment_query = "SELECT title FROM assignments WHERE assignment_id = ?";
     $stmt = mysqli_prepare($conn, $assignment_query);
     mysqli_stmt_bind_param($stmt, "i", $assignment_id);
@@ -32,8 +32,7 @@ if ($assignment_id > 0) {
     $result = mysqli_stmt_get_result($stmt);
     $assignment = mysqli_fetch_assoc($result);
     mysqli_stmt_close($stmt);
-    
-    // Get submissions
+
     $submissions_query = "
         SELECT 
             s.*,
@@ -55,99 +54,39 @@ if ($assignment_id > 0) {
 }
 
 mysqli_close($conn);
+
+$page_title = 'View Submissions';
+require_once '../../includes/header-admin.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Submissions - Admin - Ez2Learn</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 10px;
-            list-style: none;
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .nav-menu a:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
+<style>
         .page-container {
             background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .btn-back {
             background: #6b7280;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
+            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
-            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-back:hover {
             background: #4b5563;
+            transform: translateY(-1px);
         }
 
         table {
@@ -175,43 +114,42 @@ mysqli_close($conn);
         }
 
         .btn-download {
-            background: #3b82f6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 0.5rem 0.75rem;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
             text-decoration: none;
             display: inline-block;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-download:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
+        }
+
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
         }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-            <div class="header-right">
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Dashboard</a></li>
-                    <li><a href="../module-usermanagement/index.php">Users</a></li>
-                    <li><a href="../module-managelearning/index.php">Courses</a></li>
-                    <li><a href="index.php">Assignments</a></li>
-                    <li><a href="../module-progress/index.php">Progress</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-container">
             <a href="index.php" class="btn-back">← Back to Assignments</a>
             
             <?php if ($assignment): ?>
-                <h1 style="margin-bottom: 20px; color: #1e3a5f;">Submissions: <?php echo htmlspecialchars($assignment['title']); ?></h1>
+                <h1 style="margin-bottom: 1.5rem; color: #1e293b; font-size: 1.5rem; font-weight: 700;">Submissions: <?php echo htmlspecialchars($assignment['title']); ?></h1>
                 
                 <?php if (empty($submissions)): ?>
-                    <p style="text-align: center; padding: 40px; color: #6b7280;">No submissions found for this assignment.</p>
+                    <p style="text-align: center; padding: 2.5rem; color: #64748b;">No submissions found for this assignment.</p>
                 <?php else: ?>
                     <table>
                         <thead>
@@ -245,10 +183,9 @@ mysqli_close($conn);
                     </table>
                 <?php endif; ?>
             <?php else: ?>
-                <p style="text-align: center; padding: 40px; color: #6b7280;">Assignment not found</p>
+                <p style="text-align: center; padding: 2.5rem; color: #64748b;">Assignment not found</p>
             <?php endif; ?>
         </div>
     </div>
-</body>
-</html>
+<?php require_once '../../includes/footer.php'; ?>
 

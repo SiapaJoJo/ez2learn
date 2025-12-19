@@ -24,7 +24,6 @@ if (!$conn) {
 $lecturer_id = $_SESSION['user_id'] ?? 0;
 $course_id = (int)($_GET['course_id'] ?? 0);
 
-// Verify lecturer is assigned to this course
 $verify_stmt = mysqli_prepare($conn, "
     SELECT c.course_id, c.course_code, c.course_name 
     FROM courses c
@@ -45,7 +44,6 @@ if (!$course) {
 $error = '';
 $success = '';
 
-// Handle file upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     
@@ -97,20 +95,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $material_id = (int)($_POST['material_id'] ?? 0);
         
         if ($material_id > 0) {
-            // Get file path before deleting
+
             $get_stmt = mysqli_prepare($conn, "SELECT file_path FROM materials WHERE material_id = ? AND lecturer_id = ?");
             mysqli_stmt_bind_param($get_stmt, "ii", $material_id, $lecturer_id);
             mysqli_stmt_execute($get_stmt);
             $get_result = mysqli_stmt_get_result($get_stmt);
             $material = mysqli_fetch_assoc($get_result);
             mysqli_stmt_close($get_stmt);
-            
-            // Delete from database
+
             $delete_stmt = mysqli_prepare($conn, "DELETE FROM materials WHERE material_id = ? AND lecturer_id = ?");
             mysqli_stmt_bind_param($delete_stmt, "ii", $material_id, $lecturer_id);
             
             if (mysqli_stmt_execute($delete_stmt)) {
-                // Delete file if exists
+
                 if ($material && !empty($material['file_path']) && file_exists('../../' . $material['file_path'])) {
                     unlink('../../' . $material['file_path']);
                 }
@@ -123,7 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Get all materials for this course
 $materials_query = "
     SELECT material_id, title, material_type, file_path, created_at
     FROM materials
@@ -497,7 +493,6 @@ mysqli_close($conn);
         </div>
     </div>
 
-    <!-- Upload Modal -->
     <div id="uploadModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
