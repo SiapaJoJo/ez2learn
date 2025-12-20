@@ -396,6 +396,28 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             color: #764ba2;
         }
 
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            color: #764ba2;
+            transform: translateX(-4px);
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
         @media (max-width: 640px) {
             .register-container {
                 padding: 2rem 1.5rem;
@@ -413,6 +435,13 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 </head>
 <body>
     <div class="register-container">
+        <a href="index.php" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Home
+        </a>
+        
         <div class="logo-container">
             <div class="logo">
                 <img src="image/logo-ez2learn.png" alt="Ez2Learn">
