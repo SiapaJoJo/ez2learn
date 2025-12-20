@@ -21,9 +21,6 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-$error = '';
-$success = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
@@ -35,11 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $status = $_POST['status'] ?? 'active';
         
         if (empty($name) || empty($email) || empty($password)) {
-            $error = 'Name, email, and password are required.';
+            $_SESSION['error'] = 'Name, email, and password are required.';
         } elseif (strlen($password) < 6) {
-            $error = 'Password must be at least 6 characters.';
+            $_SESSION['error'] = 'Password must be at least 6 characters.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error = 'Invalid email address.';
+            $_SESSION['error'] = 'Invalid email address.';
         } else {
             $check_stmt = mysqli_prepare($conn, "SELECT user_id FROM users WHERE email = ?");
             mysqli_stmt_bind_param($check_stmt, "s", $email);
@@ -57,9 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mysqli_stmt_bind_param($stmt, "sssss", $name, $email, $hashed_password, $role, $status);
                 
                 if (mysqli_stmt_execute($stmt)) {
-                    $success = 'User created successfully!';
+                    $_SESSION['success'] = 'User created successfully!';
                 } else {
-                    $error = 'Failed to create user.';
+                    $_SESSION['error'] = 'Failed to create user.';
                 }
                 mysqli_stmt_close($stmt);
             }
@@ -79,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $check_result = mysqli_stmt_get_result($check_stmt);
             
             if (mysqli_num_rows($check_result) > 0) {
-                $error = 'Email already exists.';
+                $_SESSION['error'] = 'Email already exists.';
             } else {
                 $stmt = mysqli_prepare($conn, "
                     UPDATE users 
@@ -89,9 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mysqli_stmt_bind_param($stmt, "ssssi", $name, $email, $role, $status, $user_id);
                 
                 if (mysqli_stmt_execute($stmt)) {
-                    $success = 'User updated successfully!';
+                    $_SESSION['success'] = 'User updated successfully!';
                 } else {
-                    $error = 'Failed to update user.';
+                    $_SESSION['error'] = 'Failed to update user.';
                 }
                 mysqli_stmt_close($stmt);
             }
@@ -107,13 +104,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_bind_param($stmt, "si", $hashed_password, $user_id);
             
             if (mysqli_stmt_execute($stmt)) {
-                $success = 'Password reset successfully!';
+                $_SESSION['success'] = 'Password reset successfully!';
             } else {
-                $error = 'Failed to reset password.';
+                $_SESSION['error'] = 'Failed to reset password.';
             }
             mysqli_stmt_close($stmt);
         } else {
-            $error = 'Invalid password. Password must be at least 6 characters.';
+            $_SESSION['error'] = 'Invalid password. Password must be at least 6 characters.';
         }
     } elseif ($action === 'toggle_status') {
         $user_id = (int)($_POST['user_id'] ?? 0);
@@ -124,28 +121,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_bind_param($stmt, "si", $new_status, $user_id);
             
             if (mysqli_stmt_execute($stmt)) {
-                $success = 'User status updated successfully!';
+                $_SESSION['success'] = 'User status updated successfully!';
             } else {
-                $error = 'Failed to update user status.';
+                $_SESSION['error'] = 'Failed to update user status.';
             }
             mysqli_stmt_close($stmt);
         }
-    } elseif ($action === 'delete') {
-        $user_id = (int)($_POST['user_id'] ?? 0);
-        
-        if ($user_id > 0 && $user_id != $_SESSION['user_id']) {
-            $stmt = mysqli_prepare($conn, "DELETE FROM users WHERE user_id = ?");
-            mysqli_stmt_bind_param($stmt, "i", $user_id);
-            
-            if (mysqli_stmt_execute($stmt)) {
-                $success = 'User deleted successfully!';
-            } else {
-                $error = 'Failed to delete user.';
-            }
-            mysqli_stmt_close($stmt);
-        } else {
-            $error = 'Cannot delete your own account or invalid user.';
-        }
+    }
+    
+    if (isset($_SESSION['success']) || isset($_SESSION['error'])) {
+        header('Location: index.php');
+        exit();
     }
 }
 
@@ -512,12 +498,6 @@ require_once '../../includes/header-admin.php';
                 <button class="btn-add" onclick="openCreateModal()">+ Create User</button>
             </div>
 
-            <?php if ($success): ?>
-                <div class="alert alert-success" style="margin: 20px 30px;"><?php echo htmlspecialchars($success); ?></div>
-            <?php endif; ?>
-            <?php if ($error): ?>
-                <div class="alert alert-danger" style="margin: 20px 30px;"><?php echo htmlspecialchars($error); ?></div>
-            <?php endif; ?>
 
             <div class="filters">
                 <form method="GET" style="display: flex; gap: 15px; flex-wrap: wrap; width: 100%;">
@@ -583,9 +563,6 @@ require_once '../../includes/header-admin.php';
                                             <button class="btn-action btn-toggle" onclick="toggleStatus(<?php echo $user['user_id']; ?>, '<?php echo $user['status']; ?>')">
                                                 <?php echo $user['status'] === 'active' ? 'Deactivate' : 'Activate'; ?>
                                             </button>
-                                            <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
-                                                <button class="btn-action btn-delete" onclick="deleteUser(<?php echo $user['user_id']; ?>, '<?php echo htmlspecialchars($user['name']); ?>')">Delete</button>
-                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -730,18 +707,6 @@ require_once '../../includes/header-admin.php';
             }
         }
 
-        function deleteUser(userId, name) {
-            if (confirm(`Are you sure you want to delete user "${name}"? This action cannot be undone.`)) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.innerHTML = `
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="user_id" value="${userId}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
-        }
     </script>
 <?php require_once '../../includes/footer.php'; ?>
 

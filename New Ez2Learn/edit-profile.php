@@ -607,6 +607,5 @@ if ($user_role == 'admin') {
             }
         });
     </script>
-</body>
-</html>
+<?php require_once 'includes/footer.php'; ?>
 

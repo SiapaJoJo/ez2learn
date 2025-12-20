@@ -1,8 +1,35 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    $_SESSION['error'] = 'Please login to access this page.';
+    header('Location: ' . (strpos($_SERVER['REQUEST_URI'], '/admin/module-') !== false ? '../../login.php' : '../login.php'));
+    exit();
+}
+
+$user_role_raw = $_SESSION['role'] ?? '';
+$user_role = strtolower(trim($user_role_raw));
+$access_denied = ($user_role !== 'admin');
+
 $user_name = $_SESSION['name'] ?? 'Admin';
 $user_email = $_SESSION['email'] ?? '';
 $current_page = basename($_SERVER['PHP_SELF']);
 $current_path = $_SERVER['REQUEST_URI'];
+
+$success_message = '';
+$error_message = '';
+
+if (isset($_SESSION['success'])) {
+    $success_message = $_SESSION['success'];
+    unset($_SESSION['success']);
+}
+
+if (isset($_SESSION['error'])) {
+    $error_message = $_SESSION['error'];
+    unset($_SESSION['error']);
+}
 
 $script_path = dirname($_SERVER['SCRIPT_NAME']);
 if (strpos($script_path, '/admin/module-') !== false) {
@@ -208,6 +235,79 @@ if (strpos($script_path, '/admin/module-') !== false) {
             padding: 0 2rem;
         }
 
+        .access-denied {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+
+        .access-denied h1 {
+            font-size: 2rem;
+            color: #ef4444;
+            margin-bottom: 1rem;
+        }
+
+        .access-denied p {
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+
+        .access-denied a {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .access-denied a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .message-alert {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin: 1rem 2rem;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            animation: slideUp 0.3s;
+        }
+
+        .message-alert-success {
+            background: #ecfdf5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .message-alert-error {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         @media (max-width: 1024px) {
             .header-top {
                 padding: 1rem 1.5rem;
@@ -244,6 +344,7 @@ if (strpos($script_path, '/admin/module-') !== false) {
                 </div>
             </a>
             <div class="header-right">
+                <?php if ($user_role === 'admin'): ?>
                 <ul class="nav-menu">
                     <li><a href="<?php echo $base_path; ?>index.php" class="<?php echo ($current_page === 'index.php' && $base_path === '') ? 'active' : ''; ?>">📊 Dashboard</a></li>
                     <li><a href="<?php echo $base_path; ?>module-usermanagement/index.php" class="<?php echo strpos($current_path, 'module-usermanagement') !== false ? 'active' : ''; ?>">👥 Users</a></li>
@@ -251,6 +352,7 @@ if (strpos($script_path, '/admin/module-') !== false) {
                     <li><a href="<?php echo $base_path; ?>module-assignments/index.php" class="<?php echo strpos($current_path, 'module-assignments') !== false ? 'active' : ''; ?>">📝 Assignments</a></li>
                     <li><a href="<?php echo $base_path; ?>module-progress/index.php" class="<?php echo strpos($current_path, 'module-progress') !== false ? 'active' : ''; ?>">📈 Progress</a></li>
                 </ul>
+                <?php endif; ?>
                 <div class="profile-dropdown" id="profileDropdown">
                     <button class="profile-btn" onclick="toggleDropdown()">
                         <div class="profile-icon"><?php echo strtoupper(substr($user_name, 0, 1)); ?></div>
@@ -265,6 +367,31 @@ if (strpos($script_path, '/admin/module-') !== false) {
             </div>
         </div>
     </div>
+
+    <?php if ($access_denied): ?>
+    <div class="container">
+        <div class="access-denied">
+            <h1>🚫 Access Denied</h1>
+            <p>You do not have permission to access this page. This page is restricted to administrators only.</p>
+            <a href="<?php echo $base_path === '' ? '../' : '../../'; ?>login.php">Return to Login</a>
+        </div>
+    </div>
+    </body>
+    </html>
+    <?php exit(); endif; ?>
+    
+    <?php if ($success_message): ?>
+    <div class="message-alert message-alert-success">
+        <span>✓</span>
+        <span><?php echo htmlspecialchars($success_message); ?></span>
+    </div>
+    <?php endif; ?>
+    <?php if ($error_message): ?>
+    <div class="message-alert message-alert-error">
+        <span>⚠️</span>
+        <span><?php echo htmlspecialchars($error_message); ?></span>
+    </div>
+    <?php endif; ?>
 
     <script>
         function toggleDropdown() {
