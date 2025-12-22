@@ -97,6 +97,7 @@ CREATE TABLE submissions (
     FOREIGN KEY (student_id) REFERENCES users(user_id)
 );
 
+
 -- ==========================================
 -- 8. Quizzes
 -- ==========================================

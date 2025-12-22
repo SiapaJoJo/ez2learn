@@ -54,7 +54,18 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
-    if (!isset($_FILES['assignment_file']) || $_FILES['assignment_file']['error'] === UPLOAD_ERR_NO_FILE) {
+    // Check if due date has passed
+    $is_overdue = false;
+    if (!empty($assignment['due_date'])) {
+        $due_datetime = strtotime($assignment['due_date'] . ' 23:59:59');
+        $is_overdue = time() > $due_datetime;
+    }
+    
+    if (isset($assignment['status']) && $assignment['status'] === 'closed') {
+        $error = 'This assignment is closed. Submissions are no longer accepted.';
+    } elseif ($is_overdue) {
+        $error = 'The submission deadline has passed. You can no longer submit or resubmit this assignment.';
+    } elseif (!isset($_FILES['assignment_file']) || $_FILES['assignment_file']['error'] === UPLOAD_ERR_NO_FILE) {
         $error = 'Please select a file to upload.';
     } else {
         $file = $_FILES['assignment_file'];
@@ -97,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                             mysqli_stmt_bind_param($update_stmt, "sii", $file_path, $assignment_id, $student_id);
                             mysqli_stmt_execute($update_stmt);
                             mysqli_stmt_close($update_stmt);
+                            $success = 'Assignment resubmitted successfully!';
                         } else {
 
                             $insert_stmt = mysqli_prepare($conn, "
@@ -106,9 +118,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                             mysqli_stmt_bind_param($insert_stmt, "iis", $assignment_id, $student_id, $file_path);
                             mysqli_stmt_execute($insert_stmt);
                             mysqli_stmt_close($insert_stmt);
+                            $success = 'Assignment submitted successfully!';
                         }
-                        
-                        $success = 'Assignment submitted successfully!';
                     } else {
                         $error = 'Failed to upload file. Please try again.';
                     }
@@ -350,22 +361,41 @@ mysqli_close($conn);
                 <?php endif; ?>
             </div>
 
-            <?php if ($existing_submission): ?>
+            <?php 
+            // Check if due date has passed
+            $is_overdue = false;
+            if (!empty($assignment['due_date'])) {
+                $due_datetime = strtotime($assignment['due_date'] . ' 23:59:59');
+                $is_overdue = time() > $due_datetime;
+            }
+            ?>
+            <?php if (isset($assignment['status']) && $assignment['status'] === 'closed'): ?>
+                <div class="alert alert-danger">
+                    <strong>⚠️ This assignment is closed.</strong> Submissions are no longer accepted.
+                </div>
+            <?php elseif ($is_overdue): ?>
+                <div class="alert alert-danger">
+                    <strong>⚠️ Submission deadline has passed.</strong> You can no longer submit or resubmit this assignment.
+                </div>
+            <?php elseif ($existing_submission): ?>
                 <div class="alert alert-info">
-                    <strong>You have already submitted this assignment.</strong> Uploading a new file will replace your previous submission.
+                    <strong>You have already submitted this assignment.</strong> You can still resubmit before the deadline. Uploading a new file will replace your previous submission.
                 </div>
             <?php endif; ?>
 
+            <?php
+            $form_disabled = (isset($assignment['status']) && $assignment['status'] === 'closed') || $is_overdue;
+            ?>
             <form method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label class="form-label">Upload Assignment File *</label>
-                    <input type="file" name="assignment_file" class="form-control" required accept=".pdf,.doc,.docx,.txt,.zip,.rar,.jpg,.jpeg,.png">
+                    <input type="file" name="assignment_file" class="form-control" required accept=".pdf,.doc,.docx,.txt,.zip,.rar,.jpg,.jpeg,.png" <?php echo $form_disabled ? 'disabled' : ''; ?>>
                     <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
                         Allowed file types: PDF, DOC, DOCX, TXT, ZIP, RAR, JPG, PNG (Max 10MB)
                     </small>
                 </div>
 
-                <button type="submit" name="submit" class="btn-submit"><?php echo $existing_submission ? 'Resubmit Assignment' : 'Submit Assignment'; ?></button>
+                <button type="submit" name="submit" class="btn-submit" <?php echo $form_disabled ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''; ?>><?php echo $existing_submission ? 'Resubmit Assignment' : 'Submit Assignment'; ?></button>
             </form>
         </div>
     </div>

@@ -35,7 +35,7 @@ if ($filter === 'pending') {
 
 $assignments_query = "
     SELECT 
-        a.assignment_id, a.title, a.description, a.due_date, a.total_marks,
+        a.assignment_id, a.title, a.description, a.due_date, a.total_marks, a.status as assignment_status,
         c.course_code, c.course_name,
         s.submission_id, s.marks, s.feedback, s.submitted_at,
         CASE 
@@ -360,11 +360,29 @@ require_once '../../includes/header-student.php';
                                 </div>
 
                                 <div class="assignment-actions">
-                                    <?php if ($assignment['status'] === 'pending' || $assignment['status'] === 'overdue'): ?>
+                                    <?php 
+                                    $is_overdue = false;
+                                    if (!empty($assignment['due_date'])) {
+                                        $due_datetime = strtotime($assignment['due_date'] . ' 23:59:59');
+                                        $is_overdue = time() > $due_datetime;
+                                    }
+                                    $is_closed = isset($assignment['assignment_status']) && $assignment['assignment_status'] === 'closed';
+                                    ?>
+                                    
+                                    <?php if ($assignment['status'] === 'pending' && !$is_overdue && !$is_closed): ?>
                                         <a href="submit-assignment.php?assignment_id=<?php echo $assignment['assignment_id']; ?>" class="btn-action btn-submit">
-                                            <?php echo $assignment['submission_id'] ? 'Resubmit' : 'Submit Assignment'; ?>
+                                            Submit Assignment
                                         </a>
+                                    <?php elseif ($assignment['status'] === 'submitted' && !$is_overdue && !$is_closed && $assignment['marks'] === null): ?>
+                                        <a href="submit-assignment.php?assignment_id=<?php echo $assignment['assignment_id']; ?>" class="btn-action btn-submit">
+                                            Resubmit Assignment
+                                        </a>
+                                    <?php elseif ($is_overdue || $is_closed): ?>
+                                        <button class="btn-action btn-disabled" disabled>
+                                            <?php echo $is_closed ? 'Assignment Closed' : 'Submission Closed'; ?>
+                                        </button>
                                     <?php endif; ?>
+                                    
                                     <a href="view-assignment.php?assignment_id=<?php echo $assignment['assignment_id']; ?>" class="btn-action btn-view">View Details</a>
                                 </div>
                             </div>

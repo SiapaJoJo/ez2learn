@@ -36,15 +36,62 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     $result = mysqli_stmt_get_result($stmt);
     
     if (mysqli_num_rows($result) > 0) {
+        // First, get all submission files to delete them from disk
+        $files_stmt = mysqli_prepare($conn, "SELECT file_path FROM submissions WHERE assignment_id = ?");
+        mysqli_stmt_bind_param($files_stmt, "i", $assignment_id);
+        mysqli_stmt_execute($files_stmt);
+        $files_result = mysqli_stmt_get_result($files_stmt);
+        
+        while ($file_row = mysqli_fetch_assoc($files_result)) {
+            if (!empty($file_row['file_path']) && file_exists('../../' . $file_row['file_path'])) {
+                unlink('../../' . $file_row['file_path']);
+            }
+        }
+        mysqli_stmt_close($files_stmt);
+        
+        // Delete submissions first (foreign key constraint)
+        $delete_submissions_stmt = mysqli_prepare($conn, "DELETE FROM submissions WHERE assignment_id = ?");
+        mysqli_stmt_bind_param($delete_submissions_stmt, "i", $assignment_id);
+        mysqli_stmt_execute($delete_submissions_stmt);
+        mysqli_stmt_close($delete_submissions_stmt);
+        
+        // Now delete the assignment
         $delete_stmt = mysqli_prepare($conn, "DELETE FROM assignments WHERE assignment_id = ?");
         mysqli_stmt_bind_param($delete_stmt, "i", $assignment_id);
         
         if (mysqli_stmt_execute($delete_stmt)) {
-            $success = 'Assignment deleted successfully!';
+            $success = 'Assignment and all submissions deleted successfully!';
         } else {
             $error = 'Failed to delete assignment.';
         }
         mysqli_stmt_close($delete_stmt);
+    } else {
+        $error = 'Assignment not found or unauthorized.';
+    }
+    mysqli_stmt_close($stmt);
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'toggle_status' && isset($_GET['id'])) {
+    $assignment_id = (int)$_GET['id'];
+    
+    $stmt = mysqli_prepare($conn, "SELECT assignment_id, status FROM assignments WHERE assignment_id = ? AND lecturer_id = ?");
+    mysqli_stmt_bind_param($stmt, "ii", $assignment_id, $lecturer_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    
+    if (mysqli_num_rows($result) > 0) {
+        $assignment = mysqli_fetch_assoc($result);
+        $new_status = ($assignment['status'] === 'open') ? 'closed' : 'open';
+        
+        $update_stmt = mysqli_prepare($conn, "UPDATE assignments SET status = ? WHERE assignment_id = ?");
+        mysqli_stmt_bind_param($update_stmt, "si", $new_status, $assignment_id);
+        
+        if (mysqli_stmt_execute($update_stmt)) {
+            $success = 'Assignment status updated to ' . strtoupper($new_status) . ' successfully!';
+        } else {
+            $error = 'Failed to update assignment status.';
+        }
+        mysqli_stmt_close($update_stmt);
     } else {
         $error = 'Assignment not found or unauthorized.';
     }
@@ -58,7 +105,7 @@ if ($filter === 'pending') {
 
 $assignments_query = "
     SELECT 
-        a.assignment_id, a.title, a.description, a.due_date, a.total_marks,
+        a.assignment_id, a.title, a.description, a.due_date, a.total_marks, a.status,
         c.course_code, c.course_name,
         COUNT(DISTINCT s.student_id) as submission_count,
         COUNT(DISTINCT CASE WHEN s.marks IS NOT NULL THEN s.student_id END) as graded_count
@@ -304,6 +351,7 @@ require_once '../../includes/header-lecturer.php';
                                 <th>Course</th>
                                 <th>Due Date</th>
                                 <th>Total Marks</th>
+                                <th>Status</th>
                                 <th>Submissions</th>
                                 <th>Graded</th>
                                 <th>Actions</th>
@@ -322,9 +370,15 @@ require_once '../../includes/header-lecturer.php';
                                         <td><?php echo htmlspecialchars($assignment['course_code'] . ' - ' . $assignment['course_name']); ?></td>
                                         <td><?php echo $assignment['due_date'] ? date('M d, Y', strtotime($assignment['due_date'])) : 'Not set'; ?></td>
                                         <td><?php echo $assignment['total_marks'] ?? 'N/A'; ?></td>
+                                        <td>
+                                            <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; <?php echo $assignment['status'] === 'open' ? 'background: #d1fae5; color: #065f46;' : 'background: #fee2e2; color: #991b1b;'; ?>">
+                                                <?php echo strtoupper($assignment['status'] ?? 'open'); ?>
+                                            </span>
+                                        </td>
                                         <td><?php echo $assignment['submission_count']; ?></td>
                                         <td><?php echo $assignment['graded_count']; ?> / <?php echo $assignment['submission_count']; ?></td>
                                         <td>
+                                            <button class="btn-action" style="background: <?php echo $assignment['status'] === 'open' ? '#f59e0b' : '#10b981'; ?>; color: white;" onclick="toggleStatus(<?php echo $assignment['assignment_id']; ?>, '<?php echo $assignment['status']; ?>')"><?php echo $assignment['status'] === 'open' ? 'Close' : 'Open'; ?></button>
                                             <a href="view-submissions.php?assignment_id=<?php echo $assignment['assignment_id']; ?>" class="btn-action btn-grade">View & Grade</a>
                                             <button class="btn-action btn-delete" onclick="deleteAssignment(<?php echo $assignment['assignment_id']; ?>, '<?php echo htmlspecialchars($assignment['title']); ?>')">Delete</button>
                                         </td>
@@ -342,6 +396,14 @@ require_once '../../includes/header-lecturer.php';
         function deleteAssignment(assignmentId, title) {
             if (confirm(`Are you sure you want to delete assignment "${title}"? This will also delete all submissions.`)) {
                 window.location.href = `index.php?action=delete&id=${assignmentId}`;
+            }
+        }
+
+        function toggleStatus(assignmentId, currentStatus) {
+            const newStatus = currentStatus === 'open' ? 'CLOSED' : 'OPEN';
+            const action = currentStatus === 'open' ? 'close' : 'open';
+            if (confirm(`Are you sure you want to ${action} this assignment? ${currentStatus === 'open' ? 'Students will not be able to submit.' : 'Students will be able to submit again.'}`)) {
+                window.location.href = `index.php?action=toggle_status&id=${assignmentId}`;
             }
         }
     </script>

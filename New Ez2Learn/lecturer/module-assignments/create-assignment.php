@@ -61,19 +61,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create'])) {
         $verify_result = mysqli_stmt_get_result($verify_stmt);
         
         if (mysqli_num_rows($verify_result) > 0) {
-            $insert_stmt = mysqli_prepare($conn, "
-                INSERT INTO assignments (course_id, lecturer_id, title, description, due_date, total_marks)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ");
-            mysqli_stmt_bind_param($insert_stmt, "iisssi", $course_id, $lecturer_id, $title, $description, $due_date, $total_marks);
+            $instruction_file = null;
             
-            if (mysqli_stmt_execute($insert_stmt)) {
-                $success = 'Assignment created successfully!';
-                $_POST = array(); // Clear form
-            } else {
-                $error = 'Failed to create assignment.';
+            // Handle file upload
+            if (isset($_FILES['instruction_file']) && $_FILES['instruction_file']['error'] === UPLOAD_ERR_OK) {
+                $upload_dir = '../../uploads/assignments/instructions/';
+                if (!is_dir($upload_dir)) {
+                    mkdir($upload_dir, 0777, true);
+                }
+                
+                $file_extension = pathinfo($_FILES['instruction_file']['name'], PATHINFO_EXTENSION);
+                $allowed_extensions = ['pdf', 'doc', 'docx', 'txt', 'zip', 'rar'];
+                
+                if (in_array(strtolower($file_extension), $allowed_extensions)) {
+                    $file_name = time() . '_' . uniqid() . '.' . $file_extension;
+                    $file_path = $upload_dir . $file_name;
+                    
+                    if (move_uploaded_file($_FILES['instruction_file']['tmp_name'], $file_path)) {
+                        $instruction_file = 'uploads/assignments/instructions/' . $file_name;
+                    }
+                } else {
+                    $error = 'Invalid file type. Allowed: PDF, DOC, DOCX, TXT, ZIP, RAR';
+                }
             }
-            mysqli_stmt_close($insert_stmt);
+            
+            if (empty($error)) {
+                $insert_stmt = mysqli_prepare($conn, "
+                    INSERT INTO assignments (course_id, lecturer_id, title, description, due_date, total_marks, instruction_file)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ");
+                mysqli_stmt_bind_param($insert_stmt, "iisssss", $course_id, $lecturer_id, $title, $description, $due_date, $total_marks, $instruction_file);
+                
+                if (mysqli_stmt_execute($insert_stmt)) {
+                    $success = 'Assignment created successfully!';
+                    $_POST = array(); // Clear form
+                } else {
+                    $error = 'Failed to create assignment.';
+                }
+                mysqli_stmt_close($insert_stmt);
+            }
         } else {
             $error = 'You are not assigned to this course.';
         }
@@ -256,7 +282,7 @@ mysqli_close($conn);
                 <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
 
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label class="form-label">Course *</label>
                     <select name="course_id" class="form-control" required>
@@ -277,6 +303,12 @@ mysqli_close($conn);
                 <div class="form-group">
                     <label class="form-label">Description</label>
                     <textarea name="description" class="form-control"><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Instruction File (Optional)</label>
+                    <input type="file" name="instruction_file" class="form-control" accept=".pdf,.doc,.docx,.txt,.zip,.rar">
+                    <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">Allowed formats: PDF, DOC, DOCX, TXT, ZIP, RAR (Max 10MB)</small>
                 </div>
 
                 <div class="form-group">

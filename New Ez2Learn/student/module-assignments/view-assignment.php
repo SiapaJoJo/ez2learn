@@ -233,6 +233,15 @@ mysqli_close($conn);
                     </div>
                 <?php endif; ?>
 
+                <?php if (!empty($assignment['instruction_file'])): ?>
+                    <div class="detail-section">
+                        <div class="detail-label">Instruction File</div>
+                        <div class="detail-value">
+                            <a href="../../<?php echo htmlspecialchars($assignment['instruction_file']); ?>" target="_blank" class="btn-action btn-download" style="margin-top: 10px;">📎 Download Instructions</a>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <div class="detail-section">
                     <div class="detail-label">Due Date</div>
                     <div class="detail-value">
