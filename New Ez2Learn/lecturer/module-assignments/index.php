@@ -274,6 +274,15 @@ require_once '../../includes/header-lecturer.php';
             background: #dc2626;
         }
 
+        .btn-edit {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #d97706;
+        }
+
         tbody tr {
             transition: background-color 0.2s ease;
         }
@@ -379,6 +388,7 @@ require_once '../../includes/header-lecturer.php';
                                         <td><?php echo $assignment['graded_count']; ?> / <?php echo $assignment['submission_count']; ?></td>
                                         <td>
                                             <button class="btn-action" style="background: <?php echo $assignment['status'] === 'open' ? '#f59e0b' : '#10b981'; ?>; color: white;" onclick="toggleStatus(<?php echo $assignment['assignment_id']; ?>, '<?php echo $assignment['status']; ?>')"><?php echo $assignment['status'] === 'open' ? 'Close' : 'Open'; ?></button>
+                                            <a href="edit-assignment.php?id=<?php echo $assignment['assignment_id']; ?>" class="btn-action btn-edit">Edit</a>
                                             <a href="view-submissions.php?assignment_id=<?php echo $assignment['assignment_id']; ?>" class="btn-action btn-grade">View & Grade</a>
                                             <button class="btn-action btn-delete" onclick="deleteAssignment(<?php echo $assignment['assignment_id']; ?>, '<?php echo htmlspecialchars($assignment['title']); ?>')">Delete</button>
                                         </td>
