@@ -32,14 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                     if ($row['status'] !== 'active') {
                         $error = 'Your account is inactive. Please contact administrator.';
                     } else {
-                        $password_valid = false;
-                        if (substr($row['password'], 0, 4) === '$2y$') {
-                            $password_valid = password_verify($password, $row['password']);
-                        } else {
-                            $password_valid = ($password === $row['password']);
-                        }
-                        
-                        if ($password_valid) {
+                        if (password_verify($password, $row['password'])) {
                             $_SESSION['user_id'] = $row['user_id'];
                             $_SESSION['name'] = $row['name'];
                             $_SESSION['email'] = $row['email'];
