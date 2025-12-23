@@ -6,10 +6,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit();
 }
 
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'ez2learn';
+require_once 'includes/db-config.php';
 
 $error = '';
 $success = '';

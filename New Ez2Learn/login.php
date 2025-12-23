@@ -1,10 +1,7 @@
 <?php
 session_start();
 
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'ez2learn';
+require_once 'includes/db-config.php';
 
 $error = '';
 $success = '';

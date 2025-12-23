@@ -16,44 +16,16 @@
    - Database Password
    - Database Port
 
-### 2. Update Database Configuration
+### 2. Database Configuration
 
-**Important:** Your application currently uses hardcoded database credentials. You'll need to update the database connection in your PHP files to use environment variables or the Render database connection string.
+**✅ Already Done!** The application now uses a shared database configuration file (`includes/db-config.php`) that automatically reads from environment variables.
 
-The database connection is currently in files like:
-- `login.php`
-- `register.php`
-- And other PHP files that connect to the database
+The configuration supports:
+- **DATABASE_URL** (Render's standard connection string format)
+- Individual environment variables: **DB_HOST**, **DB_USER**, **DB_PASSWORD**, **DB_NAME**, **DB_PORT**
+- Falls back to local development defaults if environment variables are not set
 
-**Option A: Quick Fix (Update each file)**
-Replace the database connection code:
-```php
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'ez2learn';
-```
-
-With:
-```php
-$db_host = getenv('DB_HOST') ?: 'localhost';
-$db_user = getenv('DB_USER') ?: 'root';
-$db_pass = getenv('DB_PASSWORD') ?: '';
-$db_name = getenv('DB_NAME') ?: 'ez2learn';
-```
-
-**Option B: Create a config file (Recommended)**
-Create `includes/config.php`:
-```php
-<?php
-$db_host = getenv('DB_HOST') ?: 'localhost';
-$db_user = getenv('DB_USER') ?: 'root';
-$db_pass = getenv('DB_PASSWORD') ?: '';
-$db_name = getenv('DB_NAME') ?: 'ez2learn';
-?>
-```
-
-Then include it in your files: `require_once 'includes/config.php';`
+All PHP files have been updated to use this shared configuration.
 
 ### 3. Deploy Web Service on Render
 
@@ -67,14 +39,23 @@ Then include it in your files: `require_once 'includes/config.php';`
 
 ### 4. Set Environment Variables
 
-In your Render web service settings, add these environment variables:
+In your Render web service settings, you have two options:
+
+**Option A: Use DATABASE_URL (Recommended - Render's standard)**
+Render automatically provides `DATABASE_URL` when you link your database to your web service. The application will automatically parse this.
+
+**Option B: Use Individual Variables**
+If you prefer individual variables, add these in your Render web service settings:
 
 ```
 DB_HOST=<your-database-host>
 DB_USER=<your-database-user>
 DB_PASSWORD=<your-database-password>
 DB_NAME=<your-database-name>
+DB_PORT=<your-database-port>  (optional, defaults to 3306 for MySQL)
 ```
+
+**Note:** If you link your database service to your web service in Render, the `DATABASE_URL` will be automatically set and you don't need to configure individual variables.
 
 ### 5. Initialize Database
 
