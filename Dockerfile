@@ -19,7 +19,10 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 # Copy application files
-COPY "New Ez2Learn/" /var/www/html/
+# Workaround for directory name with space: copy using shell expansion
+RUN mkdir -p /tmp/build
+COPY . /tmp/build/
+RUN cp -r "/tmp/build/New Ez2Learn"/* /var/www/html/ && rm -rf /tmp/build
 
 # Set proper permissions for uploads directory
 RUN mkdir -p /var/www/html/uploads/assignments /var/www/html/uploads/materials \
