@@ -71,159 +71,142 @@ mysqli_stmt_close($stmt);
 $student_answers = json_decode($attempt['answers'] ?? '{}', true);
 
 mysqli_close($conn);
+
+$page_title = 'Quiz Result';
+require_once '../../includes/header-student.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Result - Student - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
         .page-container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .content {
+            padding: 2rem;
         }
 
         .result-header {
             text-align: center;
-            padding: 30px;
+            padding: 2rem;
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            border-radius: 10px;
-            margin-bottom: 30px;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
         }
 
         .result-header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
         }
 
         .score-display {
-            font-size: 48px;
-            font-weight: bold;
-            margin: 20px 0;
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 1.25rem 0;
         }
 
         .question-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
             border: 2px solid #e5e7eb;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .question-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
         }
 
         .question-number {
             font-weight: 600;
-            color: #3198F8;
-            font-size: 16px;
-            margin-bottom: 10px;
+            color: #667eea;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
         }
 
         .question-text {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 15px;
+            font-size: 0.9375rem;
+            color: #1e293b;
+            margin-bottom: 1rem;
             line-height: 1.6;
         }
 
         .answer-section {
-            margin-top: 15px;
-            padding: 15px;
+            margin-top: 1rem;
+            padding: 1rem;
             border-radius: 8px;
         }
 
         .answer-correct {
-            background: #d1fae5;
+            background: #ecfdf5;
             border: 2px solid #10b981;
         }
 
         .answer-incorrect {
-            background: #fee2e2;
+            background: #fef2f2;
             border: 2px solid #ef4444;
         }
 
         .answer-label {
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
         }
 
         .btn-back {
-            background: #3198F8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
+            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
 
         .btn-back:hover {
-            background: #1e6bb8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 1.5rem;
+            }
+
+            .score-display {
+                font-size: 2rem;
+            }
         }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-container">
-            <div class="result-header">
+            <div class="content">
+                <div class="result-header">
                 <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
                 <div class="score-display">
                     <?php echo $attempt['score']; ?> / <?php echo $quiz['total_marks']; ?>
                 </div>
                 <p>Your Score</p>
-                <p style="margin-top: 10px; opacity: 0.9;">Submitted: <?php echo date('M d, Y H:i', strtotime($attempt['attempted_at'])); ?></p>
-            </div>
+                    <p style="margin-top: 0.75rem; opacity: 0.9; font-size: 0.875rem;">Submitted: <?php echo date('M d, Y H:i', strtotime($attempt['attempted_at'])); ?></p>
+                </div>
 
-            <h2 style="margin-bottom: 20px; color: #333;">Review Your Answers</h2>
+                <h2 style="margin-bottom: 1.5rem; color: #1e293b; font-size: 1.25rem; font-weight: 700;">Review Your Answers</h2>
 
             <?php foreach ($questions as $index => $question): ?>
                 <?php
@@ -247,10 +230,11 @@ mysqli_close($conn);
                         <?php endif; ?>
                     </div>
                 </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
 
-            <div style="text-align: center;">
-                <a href="../module-managelearning/index.php" class="btn-back">Back to Courses</a>
+                <div style="text-align: center;">
+                    <a href="../module-managelearning/index.php" class="btn-back">← Back to Courses</a>
+                </div>
             </div>
         </div>
     </div>

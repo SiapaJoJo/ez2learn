@@ -119,76 +119,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_quiz'])) {
 }
 
 mysqli_close($conn);
+
+$page_title = 'Attempt Quiz';
+require_once '../../includes/header-student.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attempt Quiz - Student - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
         .page-container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .page-header {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
 
-        .page-header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .content {
+            padding: 2rem;
         }
 
         .quiz-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 30px;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 2px solid #e5e7eb;
         }
 
         .info-row {
@@ -204,18 +170,24 @@ mysqli_close($conn);
         }
 
         .question-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
             border: 2px solid #e5e7eb;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .question-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
         }
 
         .question-number {
             font-weight: 600;
-            color: #3198F8;
-            font-size: 16px;
-            margin-bottom: 10px;
+            color: #667eea;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
         }
 
         .question-text {
@@ -245,8 +217,8 @@ mysqli_close($conn);
         }
 
         .option-label:hover {
-            border-color: #3198F8;
-            background: #f0f7ff;
+            border-color: #667eea;
+            background: #f8fafc;
         }
 
         .option-label input[type="radio"] {
@@ -255,68 +227,90 @@ mysqli_close($conn);
 
         .form-control {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
+            padding: 0.625rem 0.75rem;
+            border: 2px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 14px;
-            margin-top: 10px;
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+            font-family: inherit;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: #3198F8;
-            box-shadow: 0 0 0 4px rgba(49, 152, 248, 0.1);
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .btn-submit {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border: none;
-            padding: 14px 28px;
+            padding: 0.75rem 1.5rem;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
-            margin-top: 20px;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
         }
 
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 6px 12px -2px rgba(16, 185, 129, 0.4);
         }
 
         .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .alert-info {
-            background: #dbeafe;
+            background: #eff6ff;
+            border-color: #3b82f6;
             color: #1e40af;
-            border: 1px solid #93c5fd;
         }
 
         @media (max-width: 768px) {
-            .header-top {
-                padding: 15px 20px;
+            .content {
+                padding: 1.5rem;
+            }
+
+            .page-header {
+                padding: 1.25rem 1.5rem;
             }
         }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-container">
             <div class="page-header">
-                <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
+                <h1 class="page-title"><?php echo htmlspecialchars($quiz['title']); ?></h1>
+            </div>
+
+            <div class="content">
                 <div class="quiz-info">
                     <div class="info-row">
                         <span class="info-label">Course:</span>
@@ -336,13 +330,12 @@ mysqli_close($conn);
                         </div>
                     <?php endif; ?>
                 </div>
-            </div>
 
-            <?php if (empty($questions)): ?>
-                <div style="text-align: center; padding: 40px; color: #6b7280;">
-                    <p>No questions available for this quiz.</p>
-                </div>
-            <?php else: ?>
+                <?php if (empty($questions)): ?>
+                    <div style="text-align: center; padding: 3rem 2rem; color: #6b7280;">
+                        <p>No questions available for this quiz.</p>
+                    </div>
+                <?php else: ?>
                 <?php if ($existing_attempt): ?>
                     <div class="alert alert-info">
                         You can retake this quiz. Your previous answers will be replaced.
@@ -412,7 +405,8 @@ mysqli_close($conn);
 
                     <button type="submit" name="submit_quiz" class="btn-submit">Submit Quiz</button>
                 </form>
-            <?php endif; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </body>

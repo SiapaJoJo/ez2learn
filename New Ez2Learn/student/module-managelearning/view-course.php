@@ -69,98 +69,84 @@ $quizzes = mysqli_fetch_all($result, MYSQLI_ASSOC);
 mysqli_stmt_close($stmt);
 
 mysqli_close($conn);
+
+$page_title = $course['course_code'] . ' - ' . $course['course_name'];
+require_once '../../includes/header-student.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($course['course_code']); ?> - Student - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
         .page-header {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header-content {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
 
         .page-header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
         }
 
         .btn-back {
             background: #6b7280;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
+            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-back:hover {
             background: #4b5563;
+            transform: translateY(-1px);
         }
 
         .page-container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .page-container-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
 
         .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .page-container-content {
+            padding: 2rem;
         }
 
         .materials-list, .quizzes-list {
@@ -170,18 +156,21 @@ mysqli_close($conn);
         }
 
         .material-item, .quiz-item {
-            padding: 15px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            padding: 1.25rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
         }
 
         .material-item:hover, .quiz-item:hover {
-            background: #f8f9fa;
-            border-color: #3198F8;
+            background: #f8fafc;
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
 
         .item-info h4 {
@@ -218,44 +207,64 @@ mysqli_close($conn);
         }
 
         .btn-download, .btn-attempt {
-            background: #3198F8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
+            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
 
         .btn-download:hover, .btn-attempt:hover {
-            background: #1e6bb8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(102, 126, 234, 0.4);
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px;
+            padding: 3rem 2rem;
             color: #6b7280;
         }
+
+        @media (max-width: 768px) {
+            .page-container-content {
+                padding: 1.5rem;
+            }
+
+            .page-header-content {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .material-item, .quiz-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-header">
-            <h1><?php echo htmlspecialchars($course['course_code'] . ' - ' . $course['course_name']); ?></h1>
-            <p style="color: #666; margin-top: 5px;"><?php echo htmlspecialchars($course['description'] ?? 'No description'); ?></p>
-            <a href="index.php" class="btn-back">← Back to Courses</a>
+            <div class="page-header-content">
+                <a href="index.php" class="btn-back">← Back to Courses</a>
+                <h1><?php echo htmlspecialchars($course['course_code'] . ' - ' . $course['course_name']); ?></h1>
+                <p><?php echo htmlspecialchars($course['description'] ?? 'No description'); ?></p>
+            </div>
         </div>
 
         <div class="page-container">
-            <h2 class="section-title">Learning Materials</h2>
+            <div class="page-container-header">
+                <h2 class="section-title">Learning Materials</h2>
+            </div>
+            <div class="page-container-content">
             <?php if (empty($materials)): ?>
                 <div class="empty-state">
                     <p>No learning materials available yet.</p>
@@ -282,27 +291,32 @@ mysqli_close($conn);
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+            </div>
         </div>
 
         <div class="page-container">
-            <h2 class="section-title">Quizzes</h2>
-            <?php if (empty($quizzes)): ?>
-                <div class="empty-state">
-                    <p>No quizzes available yet.</p>
-                </div>
-            <?php else: ?>
-                <div class="quizzes-list">
-                    <?php foreach ($quizzes as $quiz): ?>
-                        <div class="quiz-item">
-                            <div class="item-info">
-                                <h4><?php echo htmlspecialchars($quiz['title']); ?></h4>
-                                <p>Total Marks: <?php echo $quiz['total_marks']; ?></p>
+            <div class="page-container-header">
+                <h2 class="section-title">Quizzes</h2>
+            </div>
+            <div class="page-container-content">
+                <?php if (empty($quizzes)): ?>
+                    <div class="empty-state">
+                        <p>No quizzes available yet.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="quizzes-list">
+                        <?php foreach ($quizzes as $quiz): ?>
+                            <div class="quiz-item">
+                                <div class="item-info">
+                                    <h4><?php echo htmlspecialchars($quiz['title']); ?></h4>
+                                    <p>Total Marks: <?php echo $quiz['total_marks']; ?></p>
+                                </div>
+                                <a href="../module-assignments/attempt-quiz.php?quiz_id=<?php echo $quiz['quiz_id']; ?>" class="btn-attempt">Attempt Quiz</a>
                             </div>
-                            <a href="../module-assignments/attempt-quiz.php?quiz_id=<?php echo $quiz['quiz_id']; ?>" class="btn-attempt">Attempt Quiz</a>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </body>

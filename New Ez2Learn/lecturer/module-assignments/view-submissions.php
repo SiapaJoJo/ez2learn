@@ -88,81 +88,61 @@ $submissions = mysqli_fetch_all($result, MYSQLI_ASSOC);
 mysqli_stmt_close($stmt);
 
 mysqli_close($conn);
+
+$page_title = 'View Submissions';
+require_once '../../includes/header-lecturer.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Submissions - Lecturer - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
+        .page-container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .page-header {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
 
-        .page-header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
         }
 
         .btn-back {
             background: #6b7280;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
+            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-back:hover {
             background: #4b5563;
+            transform: translateY(-1px);
+        }
+
+        .content {
+            padding: 2rem;
         }
 
         .submissions-list {
@@ -173,9 +153,17 @@ mysqli_close($conn);
 
         .submission-card {
             background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .submission-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
         }
 
         .submission-header {
@@ -230,17 +218,24 @@ mysqli_close($conn);
         }
 
         .file-link {
-            display: inline-block;
-            padding: 8px 16px;
-            background: #3198F8;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-radius: 6px;
+            border-radius: 8px;
             text-decoration: none;
             margin-top: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
 
         .file-link:hover {
-            background: #1e6bb8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(102, 126, 234, 0.4);
         }
 
         .grading-form {
@@ -262,10 +257,20 @@ mysqli_close($conn);
 
         .form-control {
             width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 0.625rem 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         textarea.form-control {
@@ -283,44 +288,77 @@ mysqli_close($conn);
             background: #10b981;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-grade:hover {
             background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
         }
 
         .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .alert-success {
-            background: #d1fae5;
+            background: #ecfdf5;
+            border-color: #10b981;
             color: #065f46;
-            border: 1px solid #6ee7b7;
         }
 
         .alert-danger {
-            background: #fee2e2;
+            background: #fef2f2;
+            border-color: #ef4444;
             color: #991b1b;
-            border: 1px solid #fca5a5;
         }
 
         .marks-display {
-            font-size: 24px;
-            font-weight: bold;
-            color: #3198F8;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6b7280;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
         }
 
         @media (max-width: 768px) {
-            .header-top {
-                padding: 15px 20px;
+            .content {
+                padding: 1.5rem;
+            }
+
+            .page-header {
+                padding: 1.25rem 1.5rem;
             }
 
             .form-row {
@@ -328,34 +366,29 @@ mysqli_close($conn);
             }
         }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-        </div>
-    </div>
 
     <div class="container">
-        <div class="page-header">
-            <h1><?php echo htmlspecialchars($assignment['title']); ?></h1>
-            <p style="color: #666; margin-top: 5px;"><?php echo htmlspecialchars($assignment['course_code'] . ' - ' . $assignment['course_name']); ?></p>
-            <a href="index.php" class="btn-back">← Back to Assignments</a>
-        </div>
-
-        <?php if ($success): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-        <?php endif; ?>
-        <?php if ($error): ?>
-            <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
-        <?php endif; ?>
-
-        <?php if (empty($submissions)): ?>
-            <div style="background: white; border-radius: 15px; padding: 40px; text-align: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
-                <p style="color: #6b7280;">No submissions yet for this assignment.</p>
+        <div class="page-container">
+            <div class="page-header">
+                <a href="index.php" class="btn-back">← Back to Assignments</a>
+                <h1 class="page-title"><?php echo htmlspecialchars($assignment['title']); ?></h1>
+                <p class="page-subtitle"><?php echo htmlspecialchars($assignment['course_code'] . ' - ' . $assignment['course_name']); ?></p>
             </div>
-        <?php else: ?>
-            <div class="submissions-list">
+
+            <div class="content">
+                <?php if ($success): ?>
+                    <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+                <?php endif; ?>
+                <?php if ($error): ?>
+                    <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+                <?php endif; ?>
+
+                <?php if (empty($submissions)): ?>
+                    <div class="empty-state">
+                        <p>No submissions yet for this assignment.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="submissions-list">
                 <?php foreach ($submissions as $submission): ?>
                     <div class="submission-card">
                         <div class="submission-header">
@@ -399,9 +432,11 @@ mysqli_close($conn);
                             </form>
                         </div>
                     </div>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             </div>
-        <?php endif; ?>
+        </div>
     </div>
 </body>
 </html>

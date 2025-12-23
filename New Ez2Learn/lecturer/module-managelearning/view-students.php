@@ -56,88 +56,68 @@ $students = mysqli_fetch_all($result, MYSQLI_ASSOC);
 mysqli_stmt_close($stmt);
 
 mysqli_close($conn);
+
+$page_title = 'Enrolled Students - ' . $course['course_code'];
+require_once '../../includes/header-lecturer.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enrolled Students - <?php echo htmlspecialchars($course['course_code']); ?> - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
         .page-header {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header-content {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
 
         .page-header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
         }
 
         .btn-back {
             background: #6b7280;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
+            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-back:hover {
             background: #4b5563;
+            transform: translateY(-1px);
         }
 
         .page-container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .page-container-content {
+            padding: 2rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
         }
 
         table {
@@ -150,38 +130,57 @@ mysqli_close($conn);
         }
 
         th {
-            padding: 12px;
+            padding: 0.75rem;
             text-align: left;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 0.875rem;
             color: #374151;
         }
 
         td {
-            padding: 12px;
+            padding: 0.75rem;
             border-top: 1px solid #e5e7eb;
-            font-size: 14px;
+            font-size: 0.875rem;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .page-container-content {
+                padding: 1.5rem;
+            }
+
+            .page-header-content {
+                padding: 1.25rem 1.5rem;
+            }
         }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-header">
-            <h1>Enrolled Students - <?php echo htmlspecialchars($course['course_code'] . ' - ' . $course['course_name']); ?></h1>
-            <a href="index.php" class="btn-back">← Back to Courses</a>
+            <div class="page-header-content">
+                <a href="index.php" class="btn-back">← Back to Courses</a>
+                <h1>Enrolled Students - <?php echo htmlspecialchars($course['course_code'] . ' - ' . $course['course_name']); ?></h1>
+            </div>
         </div>
 
         <div class="page-container">
-            <?php if (empty($students)): ?>
-                <p style="text-align: center; padding: 40px; color: #6b7280;">No students enrolled in this course.</p>
-            <?php else: ?>
-                <table>
+            <div class="page-container-content">
+                <?php if (empty($students)): ?>
+                    <div class="empty-state">
+                        <p>No students enrolled in this course.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="table-wrapper">
+                        <table>
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -199,9 +198,11 @@ mysqli_close($conn);
                                 <td><?php echo date('M d, Y', strtotime($student['enrolled_at'])); ?></td>
                             </tr>
                         <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
+                        </tbody>
+                    </table>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </body>

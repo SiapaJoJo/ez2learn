@@ -78,6 +78,8 @@ CREATE TABLE assignments (
     description TEXT,
     due_date DATE,
     total_marks INT,
+    instruction_file VARCHAR(255) NULL,
+    status ENUM('open', 'closed') DEFAULT 'open',
     FOREIGN KEY (course_id) REFERENCES courses(course_id),
     FOREIGN KEY (lecturer_id) REFERENCES users(user_id)
 );

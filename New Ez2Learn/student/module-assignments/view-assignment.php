@@ -48,84 +48,56 @@ if (!$assignment) {
 }
 
 mysqli_close($conn);
+
+$page_title = 'View Assignment';
+require_once '../../includes/header-student.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Assignment - Student - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
         .page-container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .page-header {
-            margin-bottom: 30px;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
 
-        .page-header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
         }
 
         .btn-back {
             background: #6b7280;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
+            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 1rem;
         }
 
         .btn-back:hover {
             background: #4b5563;
+            transform: translateY(-1px);
+        }
+
+        .content {
+            padding: 2rem;
         }
 
         .assignment-details {
@@ -133,8 +105,8 @@ mysqli_close($conn);
         }
 
         .detail-section {
-            margin-bottom: 25px;
-            padding-bottom: 25px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
             border-bottom: 1px solid #e5e7eb;
         }
 
@@ -144,83 +116,89 @@ mysqli_close($conn);
 
         .detail-label {
             font-weight: 600;
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
         }
 
         .detail-value {
-            color: #333;
-            font-size: 16px;
+            color: #1e293b;
+            font-size: 0.9375rem;
             line-height: 1.6;
         }
 
         .submission-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            border: 2px solid #e5e7eb;
         }
 
         .marks-display {
-            font-size: 24px;
-            font-weight: bold;
-            color: #3198F8;
-            margin: 15px 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin: 1rem 0;
         }
 
         .btn-action {
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 600;
             text-decoration: none;
-            display: inline-block;
-            margin-top: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-submit {
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
         }
 
         .btn-submit:hover {
-            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(16, 185, 129, 0.4);
         }
 
         .btn-download {
-            background: #3b82f6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
 
         .btn-download:hover {
-            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(102, 126, 234, 0.4);
         }
 
         @media (max-width: 768px) {
-            .header-top {
-                padding: 15px 20px;
+            .content {
+                padding: 1.5rem;
+            }
+
+            .page-header {
+                padding: 1.25rem 1.5rem;
             }
         }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-container">
             <div class="page-header">
                 <a href="index.php" class="btn-back">← Back to Assignments</a>
-                <h1><?php echo htmlspecialchars($assignment['title']); ?></h1>
+                <h1 class="page-title"><?php echo htmlspecialchars($assignment['title']); ?></h1>
             </div>
 
-            <div class="assignment-details">
+            <div class="content">
+                <div class="assignment-details">
                 <div class="detail-section">
                     <div class="detail-label">Course</div>
                     <div class="detail-value"><?php echo htmlspecialchars($assignment['course_code'] . ' - ' . $assignment['course_name']); ?></div>
@@ -299,6 +277,7 @@ mysqli_close($conn);
                         <a href="submit-assignment.php?assignment_id=<?php echo $assignment['assignment_id']; ?>" class="btn-action btn-submit">Submit Assignment</a>
                     </div>
                 <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>

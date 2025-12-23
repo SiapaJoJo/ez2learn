@@ -122,83 +122,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_quiz'])) {
 }
 
 mysqli_close($conn);
+
+$page_title = 'Create Quiz';
+require_once '../../includes/header-lecturer.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Quiz - Lecturer - Ez2Learn</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-top {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
         .page-container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .page-header {
-            margin-bottom: 30px;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
 
-        .page-header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
         }
 
         .btn-back {
             background: #6b7280;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
+            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 1rem;
         }
 
         .btn-back:hover {
             background: #4b5563;
+            transform: translateY(-1px);
+        }
+
+        .content {
+            padding: 2rem;
         }
 
         .form-group {
@@ -215,17 +188,20 @@ mysqli_close($conn);
 
         .form-control {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
+            padding: 0.625rem 0.75rem;
+            border: 2px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+            font-family: inherit;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: #3198F8;
-            box-shadow: 0 0 0 4px rgba(49, 152, 248, 0.1);
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .questions-container {
@@ -233,11 +209,17 @@ mysqli_close($conn);
         }
 
         .question-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
             border: 2px solid #e5e7eb;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .question-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
         }
 
         .question-header {
@@ -249,18 +231,25 @@ mysqli_close($conn);
 
         .question-number {
             font-weight: 600;
-            color: #3198F8;
-            font-size: 16px;
+            color: #667eea;
+            font-size: 1rem;
         }
 
         .btn-remove {
             background: #ef4444;
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-remove:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
         }
 
         .options-grid {
@@ -274,54 +263,83 @@ mysqli_close($conn);
             background: #10b981;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 600;
-            margin-top: 20px;
+            margin-top: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-add-question:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
         }
 
         .btn-submit {
-            background: linear-gradient(135deg, #3198F8 0%, #1e6bb8 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 14px 28px;
+            padding: 0.75rem 1.5rem;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
-            margin-top: 20px;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
 
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(49, 152, 248, 0.4);
+            box-shadow: 0 6px 12px -2px rgba(102, 126, 234, 0.4);
         }
 
         .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .alert-success {
-            background: #d1fae5;
+            background: #ecfdf5;
+            border-color: #10b981;
             color: #065f46;
-            border: 1px solid #6ee7b7;
         }
 
         .alert-danger {
-            background: #fee2e2;
+            background: #fef2f2;
+            border-color: #ef4444;
             color: #991b1b;
-            border: 1px solid #fca5a5;
         }
 
         @media (max-width: 768px) {
-            .header-top {
-                padding: 15px 20px;
+            .content {
+                padding: 1.5rem;
+            }
+
+            .page-header {
+                padding: 1.25rem 1.5rem;
             }
 
             .options-grid {
@@ -329,20 +347,15 @@ mysqli_close($conn);
             }
         }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-top">
-            <div class="logo-text">Ez2Learn</div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="page-container">
             <div class="page-header">
                 <a href="index.php" class="btn-back">← Back</a>
-                <h1>Create Quiz</h1>
+                <h1 class="page-title">Create Quiz</h1>
             </div>
+
+            <div class="content">
 
             <?php if ($success): ?>
                 <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
@@ -383,6 +396,7 @@ mysqli_close($conn);
 
                 <button type="submit" name="create_quiz" class="btn-submit">Create Quiz</button>
             </form>
+            </div>
         </div>
     </div>
 
