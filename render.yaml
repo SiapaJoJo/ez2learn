@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: ez2learn
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: PHP_INI_SCAN_DIR
+        value: /usr/local/etc/php/conf.d
+    healthCheckPath: /
+    plan: starter
+
+databases:
+  - name: ez2learn-db
+    databaseName: ez2learn
+    user: ez2learn_user
+    plan: starter
+
