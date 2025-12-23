@@ -115,6 +115,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                             mysqli_stmt_bind_param($insert_stmt, "iis", $assignment_id, $student_id, $file_path);
                             mysqli_stmt_execute($insert_stmt);
                             mysqli_stmt_close($insert_stmt);
+                            
+                            // MODULE 4: Update progress after assignment submission
+                            require_once '../../includes/progress_service.php';
+                            $stmt_course = mysqli_prepare($conn, "SELECT course_id FROM assignments WHERE assignment_id = ?");
+                            mysqli_stmt_bind_param($stmt_course, "i", $assignment_id);
+                            mysqli_stmt_execute($stmt_course);
+                            $result_course = mysqli_stmt_get_result($stmt_course);
+                            $assign_course = mysqli_fetch_assoc($result_course);
+                            if ($assign_course) {
+                                recalc_and_persist_course_progress($conn, $student_id, $assign_course['course_id']);
+                                log_progress_event($conn, $student_id, $assign_course['course_id'], 'assignment_submit', $assignment_id, json_encode(['file' => $file_path]), 'success');
+                            }
+                            mysqli_stmt_close($stmt_course);
+                            
                             $success = 'Assignment submitted successfully!';
                         }
                     } else {

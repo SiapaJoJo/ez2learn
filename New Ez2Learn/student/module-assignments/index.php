@@ -32,7 +32,7 @@ if ($filter === 'pending') {
 
 $assignments_query = "
     SELECT 
-        a.assignment_id, a.title, a.description, a.due_date, a.total_marks, a.status as assignment_status,
+        a.assignment_id, a.title, a.description, a.due_date, a.total_marks,
         c.course_code, c.course_name,
         s.submission_id, s.marks, s.feedback, s.submitted_at,
         CASE 

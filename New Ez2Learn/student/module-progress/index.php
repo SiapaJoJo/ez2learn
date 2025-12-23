@@ -11,258 +11,170 @@ if (strtolower($_SESSION['role'] ?? '') !== 'student') {
     exit();
 }
 
-require_once '../../includes/db-config.php';
-
-$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
+require_once '../../includes/db_connection.php';
+require_once '../../includes/progress_service.php';
 
 $student_id = $_SESSION['user_id'] ?? 0;
 
-$progress_query = "
-    SELECT 
-        c.course_id, c.course_code, c.course_name,
-        p.completed_percentage,
-        COUNT(DISTINCT m.material_id) as total_materials,
-        COUNT(DISTINCT a.assignment_id) as total_assignments,
-        COUNT(DISTINCT s.assignment_id) as submitted_assignments,
-        COUNT(DISTINCT q.quiz_id) as total_quizzes,
-        COUNT(DISTINCT qa.quiz_id) as attempted_quizzes
-    FROM enrollments e
-    INNER JOIN courses c ON e.course_id = c.course_id
-    LEFT JOIN progress p ON c.course_id = p.course_id AND p.student_id = ?
-    LEFT JOIN materials m ON c.course_id = m.course_id
-    LEFT JOIN assignments a ON c.course_id = a.course_id
-    LEFT JOIN submissions s ON a.assignment_id = s.assignment_id AND s.student_id = ?
-    LEFT JOIN quizzes q ON c.course_id = q.course_id
-    LEFT JOIN quiz_attempts qa ON q.quiz_id = qa.quiz_id AND qa.student_id = ?
-    WHERE e.student_id = ?
-    GROUP BY c.course_id, p.completed_percentage
-    ORDER BY c.course_code ASC
-";
-$stmt = mysqli_prepare($conn, $progress_query);
-mysqli_stmt_bind_param($stmt, "iiii", $student_id, $student_id, $student_id, $student_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$course_progress = mysqli_fetch_all($result, MYSQLI_ASSOC);
-mysqli_stmt_close($stmt);
+// Get all courses with progress
+$courses = get_student_all_courses_progress($conn, $student_id);
 
-$total_courses = count($course_progress);
-$completed_courses = 0;
-$total_assignments = 0;
-$submitted_assignments = 0;
-$total_quizzes = 0;
-$attempted_quizzes = 0;
-
-foreach ($course_progress as $course) {
-    if (($course['completed_percentage'] ?? 0) >= 100) {
-        $completed_courses++;
-    }
-    $total_assignments += $course['total_assignments'];
-    $submitted_assignments += $course['submitted_assignments'];
-    $total_quizzes += $course['total_quizzes'];
-    $attempted_quizzes += $course['attempted_quizzes'];
-}
-
-$overall_completion = $total_courses > 0 ? round(($completed_courses / $total_courses) * 100, 1) : 0;
+// Calculate overall stats
+$total_courses = count($courses);
+$completed_courses = count(array_filter($courses, function($c) { return $c['completed_percentage'] >= 100; }));
+$avg_progress = $total_courses > 0 ? round(array_sum(array_column($courses, 'completed_percentage')) / $total_courses) : 0;
 
 mysqli_close($conn);
+
 
 $page_title = 'My Progress';
 require_once '../../includes/header-student.php';
 ?>
 <style>
+    .page-container {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
 
-        .page-container {
-            background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
+    .page-header {
+        padding: 30px;
+        border-bottom: 1px solid #e5e7eb;
+    }
 
-        .page-header {
-            padding: 30px;
-            border-bottom: 1px solid #e5e7eb;
-        }
+    .page-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1e3a5f;
+    }
 
-        .page-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1e3a5f;
-        }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 30px;
+        margin-bottom: 20px;
+    }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            padding: 2rem;
-        }
+    .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        text-align: center;
+    }
 
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    .stat-number {
+        font-size: 36px;
+        font-weight: bold;
+        color: #3198F8;
+        margin-bottom: 10px;
+    }
 
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(102, 126, 234, 0.4);
-        }
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+    }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
+    .course-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
 
-        .stat-label {
-            font-size: 0.875rem;
-            opacity: 0.9;
-        }
+    .progress-bar-wrapper {
+        height: 20px;
+        background: #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 10px 0;
+    }
 
-        .content {
-            padding: 2rem;
-        }
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981, #059669);
+        transition: width 0.5s ease;
+    }
 
-        .table-wrapper {
-            overflow-x: auto;
-        }
+    .certificate-badge {
+        background: #fbbf24;
+        color: #78350f;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+    .btn-details {
+        color: #3198F8;
+        text-decoration: none;
+        font-weight: 500;
+    }
 
-        thead {
-            background: #f3f4f6;
-        }
+    .btn-details:hover {
+        text-decoration: underline;
+    }
+</style>
 
-        th {
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 14px;
-            color: #374151;
-        }
+<div class="container">
+    <div class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">My Learning Progress</h1>
+        </div>
 
-        td {
-            padding: 12px;
-            border-top: 1px solid #e5e7eb;
-            font-size: 14px;
-        }
-
-        tbody tr {
-            transition: background-color 0.2s ease;
-        }
-
-        tbody tr:hover {
-            background-color: #f8fafc;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: #e5e7eb;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 0.5rem;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.3s ease;
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-
-    <div class="container">
-        <div class="page-container">
-            <div class="page-header">
-                <h1 class="page-title">My Learning Progress</h1>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number"><?php echo $total_courses; ?></div>
+                <div class="stat-label">Enrolled Courses</div>
             </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number"><?php echo $total_courses; ?></div>
-                    <div class="stat-label">Enrolled Courses</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number"><?php echo $completed_courses; ?></div>
-                    <div class="stat-label">Completed Courses</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number"><?php echo $overall_completion; ?>%</div>
-                    <div class="stat-label">Overall Completion</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number"><?php echo $submitted_assignments; ?> / <?php echo $total_assignments; ?></div>
-                    <div class="stat-label">Assignments Submitted</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number"><?php echo $attempted_quizzes; ?> / <?php echo $total_quizzes; ?></div>
-                    <div class="stat-label">Quizzes Attempted</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-number"><?php echo round($avg_progress); ?>%</div>
+                <div class="stat-label">Average Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><?php echo $completed_courses; ?></div>
+                <div class="stat-label">Completed Courses</div>
             </div>
         </div>
 
-        <div class="page-container">
-            <div class="content">
-                <h2 style="font-size: 20px; font-weight: 600; color: #333; margin-bottom: 20px;">Course Progress</h2>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Course Code</th>
-                                <th>Course Name</th>
-                                <th>Materials</th>
-                                <th>Assignments</th>
-                                <th>Quizzes</th>
-                                <th>Completion</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($course_progress)): ?>
-                                <tr>
-                                    <td colspan="6" style="text-align: center; padding: 40px; color: #6b7280;">No enrolled courses</td>
-                                </tr>
-                            <?php else: ?>
-                                <?php foreach ($course_progress as $course): ?>
-                                    <tr>
-                                        <td><strong><?php echo htmlspecialchars($course['course_code']); ?></strong></td>
-                                        <td><?php echo htmlspecialchars($course['course_name']); ?></td>
-                                        <td><?php echo $course['total_materials']; ?></td>
-                                        <td><?php echo $course['submitted_assignments']; ?> / <?php echo $course['total_assignments']; ?></td>
-                                        <td><?php echo $course['attempted_quizzes']; ?> / <?php echo $course['total_quizzes']; ?></td>
-                                        <td>
-                                            <?php 
-                                            $completion = round($course['completed_percentage'] ?? 0, 1);
-                                            echo $completion . '%';
-                                            ?>
-                                            <div class="progress-bar">
-                                                <div class="progress-fill" style="width: <?php echo min($completion, 100); ?>%;"></div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
+        <div style="padding: 30px;">
+            <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">Course Progress</h2>
+            
+            <?php if (empty($courses)): ?>
+                <p style="text-align: center; color: #666; padding: 40px;">No enrolled courses found.</p>
+            <?php else: ?>
+                <?php foreach ($courses as $course): ?>
+                    <div class="course-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div>
+                                <h3><?php echo htmlspecialchars($course['course_code']); ?> - <?php echo htmlspecialchars($course['course_name']); ?></h3>
+                                <p style="color: #666; font-size: 14px; margin-top: 5px;">
+                                    Last updated: <?php echo $course['last_updated'] ? date('M d, Y', strtotime($course['last_updated'])) : 'Not started'; ?>
+                                </p>
+                            </div>
+                            <?php if ($course['has_certificate']): ?>
+                                <span class="certificate-badge">🏆 Certificate Earned</span>
                             <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-fill" style="width: <?php echo $course['completed_percentage']; ?>%;"></div>
+                        </div>
+                        <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 600; color: #3198F8;"><?php echo $course['completed_percentage']; ?>% Complete</span>
+                            <a href="course-details.php?course_id=<?php echo $course['course_id']; ?>" class="btn-details">View Details →</a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
+</div>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php
+require_once '../../includes/footer.php';
+?>
 

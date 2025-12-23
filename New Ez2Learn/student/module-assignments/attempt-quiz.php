@@ -110,6 +110,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_quiz'])) {
         mysqli_stmt_close($insert_stmt);
     }
     
+    // MODULE 4: Update progress after quiz attempt
+    require_once '../../includes/progress_service.php';
+    $stmt_course = mysqli_prepare($conn, "SELECT course_id FROM quizzes WHERE quiz_id = ?");
+    mysqli_stmt_bind_param($stmt_course, "i", $quiz_id);
+    mysqli_stmt_execute($stmt_course);
+    $result_course = mysqli_stmt_get_result($stmt_course);
+    $quiz_course = mysqli_fetch_assoc($result_course);
+    if ($quiz_course) {
+        recalc_and_persist_course_progress($conn, $student_id, $quiz_course['course_id']);
+        log_progress_event($conn, $student_id, $quiz_course['course_id'], 'quiz_attempt', $quiz_id, json_encode(['score' => $total_score, 'total' => $total_marks]), 'success');
+    }
+    mysqli_stmt_close($stmt_course);
+    
     $success = "Quiz submitted! Your score: $total_score / $total_marks";
     header('Location: view-quiz-result.php?quiz_id=' . $quiz_id);
     exit();

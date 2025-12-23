@@ -102,7 +102,7 @@ if ($filter === 'pending') {
 
 $assignments_query = "
     SELECT 
-        a.assignment_id, a.title, a.description, a.due_date, a.total_marks, a.status,
+        a.assignment_id, a.title, a.description, a.due_date, a.total_marks,
         c.course_code, c.course_name,
         COUNT(DISTINCT s.student_id) as submission_count,
         COUNT(DISTINCT CASE WHEN s.marks IS NOT NULL THEN s.student_id END) as graded_count
@@ -122,6 +122,17 @@ $page_title = 'My Assignments';
 require_once '../../includes/header-lecturer.php';
 ?>
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
         .page-container {
             background: #ffffff;
             border-radius: 16px;
@@ -377,14 +388,13 @@ require_once '../../includes/header-lecturer.php';
                                         <td><?php echo $assignment['due_date'] ? date('M d, Y', strtotime($assignment['due_date'])) : 'Not set'; ?></td>
                                         <td><?php echo $assignment['total_marks'] ?? 'N/A'; ?></td>
                                         <td>
-                                            <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; <?php echo $assignment['status'] === 'open' ? 'background: #d1fae5; color: #065f46;' : 'background: #fee2e2; color: #991b1b;'; ?>">
-                                                <?php echo strtoupper($assignment['status'] ?? 'open'); ?>
+                                            <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #d1fae5; color: #065f46;">
+                                                OPEN
                                             </span>
                                         </td>
                                         <td><?php echo $assignment['submission_count']; ?></td>
                                         <td><?php echo $assignment['graded_count']; ?> / <?php echo $assignment['submission_count']; ?></td>
                                         <td>
-                                            <button class="btn-action" style="background: <?php echo $assignment['status'] === 'open' ? '#f59e0b' : '#10b981'; ?>; color: white;" onclick="toggleStatus(<?php echo $assignment['assignment_id']; ?>, '<?php echo $assignment['status']; ?>')"><?php echo $assignment['status'] === 'open' ? 'Close' : 'Open'; ?></button>
                                             <a href="edit-assignment.php?id=<?php echo $assignment['assignment_id']; ?>" class="btn-action btn-edit">Edit</a>
                                             <a href="view-submissions.php?assignment_id=<?php echo $assignment['assignment_id']; ?>" class="btn-action btn-grade">View & Grade</a>
                                             <button class="btn-action btn-delete" onclick="deleteAssignment(<?php echo $assignment['assignment_id']; ?>, '<?php echo htmlspecialchars($assignment['title']); ?>')">Delete</button>

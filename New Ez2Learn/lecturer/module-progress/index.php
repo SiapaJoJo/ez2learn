@@ -47,6 +47,17 @@ $page_title = 'Student Progress';
 require_once '../../includes/header-lecturer.php';
 ?>
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
         .page-container {
             background: #ffffff;
             border-radius: 16px;

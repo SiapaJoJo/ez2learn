@@ -82,6 +82,12 @@ $result = mysqli_stmt_get_result($stmt);
 $enrolled_courses = mysqli_fetch_all($result, MYSQLI_ASSOC);
 mysqli_stmt_close($stmt);
 
+// MODULE 4: Ensure progress records exist for all enrollments
+require_once '../../includes/progress_service.php';
+foreach ($enrolled_courses as $course) {
+    ensure_progress_record($conn, $student_id, $course['course_id']);
+}
+
 $available_query = "
     SELECT 
         c.course_id, c.course_code, c.course_name, c.description,
