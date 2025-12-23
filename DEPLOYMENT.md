@@ -8,7 +8,7 @@
 
 ### 1. Database Setup on Render
 
-1. In your Render dashboard, create a new **PostgreSQL** or **MySQL** database
+1. In your Render dashboard, create a new **MySQL** database
 2. Note down the following connection details:
    - Database Host
    - Database Name
@@ -33,9 +33,10 @@ All PHP files have been updated to use this shared configuration.
 2. Connect your GitHub repository
 3. Configure:
    - **Name:** ez2learn (or your preferred name)
-   - **Environment:** Docker
-   - **Dockerfile Path:** `./Dockerfile`
-   - **Docker Context:** `.` (root directory)
+   - **Environment:** PHP
+   - **Root Directory:** `New Ez2Learn`
+   - **Build Command:** (leave empty)
+   - **Start Command:** `php -S 0.0.0.0:$PORT -t .`
 
 ### 4. Set Environment Variables
 
@@ -76,7 +77,7 @@ After setting environment variables, you can test the connection:
 
 **Note:** After adding/changing environment variables, you need to **redeploy** your web service for changes to take effect.
 
-### 5. Initialize Database
+### 6. Initialize Database
 
 After deployment, you need to run the SQL scripts to create tables:
 
@@ -84,27 +85,14 @@ After deployment, you need to run the SQL scripts to create tables:
 2. Run the SQL from `New Ez2Learn/database/database.sql` to create tables
 3. Optionally run `New Ez2Learn/database/insert.sql` to insert initial data
 
-### 6. File Uploads
+### 7. File Uploads
 
-The `uploads` directory is created in the Dockerfile, but for persistent storage on Render, consider:
+For persistent storage on Render, consider:
 - Using Render Disk for persistent storage, OR
 - Using a cloud storage service (AWS S3, Cloudinary, etc.)
-
-## Alternative: Use Render PHP Buildpack (No Dockerfile)
-
-If you prefer not to use Docker:
-
-1. In Render, select **Web Service**
-2. Choose **PHP** as the environment (not Docker)
-3. Set **Root Directory** to: `New Ez2Learn`
-4. Set **Build Command:** (leave empty or use `composer install` if you have composer.json)
-5. Set **Start Command:** `php -S 0.0.0.0:$PORT -t .`
-
-Note: You'll still need to update database connections and set environment variables.
 
 ## Troubleshooting
 
 - **Database Connection Errors:** Verify environment variables are set correctly
-- **File Upload Issues:** Check directory permissions (should be 755)
-- **404 Errors:** Ensure Apache mod_rewrite is enabled (already in Dockerfile)
-
+- **File Upload Issues:** Check directory permissions
+- **404 Errors:** Check that your Start Command is correct and Root Directory is set to `New Ez2Learn`
