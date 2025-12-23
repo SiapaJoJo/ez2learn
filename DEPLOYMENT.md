@@ -39,13 +39,20 @@ All PHP files have been updated to use this shared configuration.
 
 ### 4. Set Environment Variables
 
-In your Render web service settings, you have two options:
+**⚠️ IMPORTANT:** You MUST set environment variables in Render for the database connection to work!
+
+In your Render web service settings, go to **Environment** and add these variables:
 
 **Option A: Use DATABASE_URL (Recommended - Render's standard)**
-Render automatically provides `DATABASE_URL` when you link your database to your web service. The application will automatically parse this.
+1. In your Render dashboard, go to your **Database** service
+2. Copy the **Internal Database URL** (format: `mysql://user:password@host:port/database`)
+3. In your **Web Service** → **Environment**, add:
+   ```
+   DATABASE_URL=<paste-the-internal-database-url>
+   ```
 
 **Option B: Use Individual Variables**
-If you prefer individual variables, add these in your Render web service settings:
+Add these in your Render web service **Environment** settings:
 
 ```
 DB_HOST=<your-database-host>
@@ -55,7 +62,19 @@ DB_NAME=<your-database-name>
 DB_PORT=<your-database-port>  (optional, defaults to 3306 for MySQL)
 ```
 
-**Note:** If you link your database service to your web service in Render, the `DATABASE_URL` will be automatically set and you don't need to configure individual variables.
+**To find your database credentials:**
+1. Go to your Database service in Render
+2. Look for "Internal Database URL" or individual connection details
+3. Use the **Internal** connection details (not External) - they work within Render's network
+
+### 5. Test Database Connection
+
+After setting environment variables, you can test the connection:
+1. Visit `https://your-app.onrender.com/db-test.php`
+2. This will show you what environment variables are detected
+3. **Delete `db-test.php` after testing for security!**
+
+**Note:** After adding/changing environment variables, you need to **redeploy** your web service for changes to take effect.
 
 ### 5. Initialize Database
 
