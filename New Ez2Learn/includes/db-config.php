@@ -38,16 +38,6 @@ if ($database_url) {
     }
 }
 
-// Create database connection
-$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-
-// Set charset to UTF-8
-mysqli_set_charset($conn, 'utf8mb4');
-
 // Debug mode: Uncomment to see what values are being used (remove in production!)
 // error_log("DB Config - Host: $db_host, User: $db_user, DB: $db_name");
 

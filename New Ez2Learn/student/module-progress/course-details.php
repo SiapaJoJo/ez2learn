@@ -11,7 +11,7 @@ if (strtolower($_SESSION['role'] ?? '') !== 'student') {
     exit();
 }
 
-require_once '../../includes/db-config.php';
+require_once '../../includes/db_connection.php';
 require_once '../../includes/progress_service.php';
 
 $student_id = $_SESSION['user_id'] ?? 0;
